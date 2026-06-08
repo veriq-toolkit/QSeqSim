@@ -118,6 +118,10 @@ class BDDSimulator:
             raise StopIteration("break")
         elif op.name == 'measure':
             self._handle_measurement(op)
+        elif op.name == 'mcx':
+            if not op.qubits:
+                raise ValueError("mcx requires at least one target qubit.")
+            self.kernel.multi_controlled_X(op.qubits[:-1], op.qubits[-1])
         else:
             method_name = self.GATE_METHOD_MAP.get(op.name)
             if not method_name:

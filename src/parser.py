@@ -6,6 +6,8 @@ import qiskit.qasm3
 from qiskit import QuantumCircuit
 from typing import Any, List, Set, Dict, Tuple, Optional
 
+COMPACT_QASM_METADATA_KEY = "qseqsim_compact_qasm"
+
 # ==========================================
 # 0. Version Compatibility and Type Definitions (Pylance Safe)
 # ==========================================
@@ -166,13 +168,19 @@ class QiskitParser:
         self.SUPPORTED_GATES = {
             'x', 'y', 'z', 'h', 's', 'sdg', 't', 'tdg', 
             'x2p', 'y2p', 
-            'cx', 'cz', 'ccx', 'cswap', 'swap',
+            'cx', 'cz', 'ccx', 'mcx', 'cswap', 'swap',
             'measure', 'break'
         }
 
     def to_qasm3(self):
         try:
             if self.circuit:
+                metadata = getattr(self.circuit, "metadata", None)
+                if isinstance(metadata, dict):
+                    compact_qasm = metadata.get(COMPACT_QASM_METADATA_KEY)
+                    if isinstance(compact_qasm, str) and compact_qasm.strip():
+                        self.qasm_str = compact_qasm
+                        return
                 self.qasm_str = qiskit.qasm3.dumps(self.circuit)
         except Exception as e:
             raise RuntimeError(f"Qiskit to QASM3 conversion failed: {e}")

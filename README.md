@@ -152,12 +152,26 @@ To run the Quantum Random Walk experiment (scaling up to 1024 qubits):
 python exp/simulation/qrw.py
 ```
 
+To run the parser-compatible Qiskit QRW loop benchmark using the BDDSeqSim
+lowering backend:
+
+```bash
+python exp/simulation/exp_engine.py qiskit_qrw
+```
+
 ### Grover's Algorithm
 
 To run the Grover search experiment:
 
 ```bash
 python exp/simulation/grover.py
+```
+
+To run the parser-compatible Qiskit Grover loop benchmark using the BDDSeqSim
+lowering backend:
+
+```bash
+python exp/simulation/exp_engine.py qiskit_grover
 ```
 
 ## Documentation (User / Reuse / AE)

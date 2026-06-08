@@ -32,6 +32,23 @@ For very large structured sequential workloads (e.g., QRW/Grover style), some ex
 
 > Kernel-level usage is considered “advanced”: it is powerful but closer to the implementation details.
 
+Parser-compatible QRW/Grover constructors are also available when a downstream
+harness needs standard Qiskit circuits:
+
+- `src.benchmark_circuits.build_qrw_loop_circuit(n)`
+- `src.benchmark_circuits.build_grover_loop_circuit(n)`
+
+These builders mirror the operation order in `exp/simulation/qrw.py` and
+`exp/simulation/grover.py`, then encode the benchmark as a Qiskit `while_loop`
+whose guard is updated by measuring `q[0]` into `c[0]`.
+
+Single-loop SQC programs can also be lowered from the parsed IR to the
+`BDDSeqSim` execution model through `src.seqsim_lowering`. The lowering is
+structural rather than benchmark-name based: it accepts one top-level `SQC`
+whose body is linear `CQC` code followed by measurements of the loop's external
+input qubits into the loop flag. Those external qubits are remapped to the
+`BDDSeqSim` input prefix and the remaining qubits become stored state.
+
 ---
 
 ## 2. Add a new benchmark (recommended workflow)

@@ -7,7 +7,7 @@ import importlib.util
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List
 import os
 import random
 _seed = os.environ.get("QSEQSIM_RNG_SEED")
@@ -21,6 +21,7 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 from src.parser import QiskitParser
+from src.seqsim_lowering import lower_to_bddseqsim, run_bddseqsim_lowered
 from src.simulator import BDDSimulator
 
 
@@ -35,7 +36,12 @@ class ExperimentRunner:
         self.compute_time: float = 0.0  # Computation time (BDD Simulation)
 
         # Import circuit and configuration parameters from experiment file
-        self.circ, self.sim_mode, self.preset_values = self._import_experiment_data()
+        (
+            self.circ,
+            self.sim_mode,
+            self.preset_values,
+            self.sim_backend,
+        ) = self._import_experiment_data()
 
     def _get_exp_abs_path(self) -> Path:
         return Path(__file__).parent.resolve() / f"{self.exp_rel_path}.py"
@@ -75,11 +81,20 @@ class ExperimentRunner:
             if not isinstance(preset_values, dict):
                 raise TypeError(f"preset_values must be a dictionary, current type: {type(preset_values)}")
 
-        return module.circ, sim_mode, preset_values
+        sim_backend = getattr(module, "sim_backend", "bddsim").lower()
+        valid_backends = ["bddsim", "bddseqsim_lowering"]
+        if sim_backend not in valid_backends:
+            raise ValueError(
+                f"sim_backend must be one of {valid_backends}, current value: {sim_backend}"
+            )
+
+        return module.circ, sim_mode, preset_values, sim_backend
 
     def run(self) -> None:
         print(f"📂 Experiment File: {self.exp_abs_path.name}")
         print(f"▶️ Simulation Mode: {self.sim_mode}")
+        if self.sim_backend != "bddsim":
+            print(f"▶️ Simulation Backend: {self.sim_backend}")
         if self.sim_mode == 'preset':
             print(f"▶️ Preset Values: {self.preset_values}")
         print("▶️ Ready, starting execution...")
@@ -97,24 +112,39 @@ class ExperimentRunner:
             self.compile_time = time.perf_counter() - t_start_compile
             # ==================================================
 
-            # Initialize Simulator (Build BDD Structure)
-            sim = BDDSimulator(structure)
+            sim = None
+            lowered = None
+            if self.sim_backend == "bddsim":
+                # Initialize Simulator (Build BDD Structure)
+                sim = BDDSimulator(structure)
 
             # ========== Phase 2: Computation (Simulation) ==========
             # Statistics for Core BDD Operation and Path Simulation Time
             t_start_compute = time.perf_counter()
 
-            if self.sim_mode == 'preset':
-                sim.run(mode='preset', presets=self.preset_values)
-            else:  # sample mode
-                sim.run(mode='sample')
+            if self.sim_backend == "bddseqsim_lowering":
+                if self.sim_mode != "preset":
+                    raise ValueError("bddseqsim_lowering currently requires preset mode.")
+                plan = lower_to_bddseqsim(structure)
+                preset_path = self._preset_path_for_measurements(
+                    self.preset_values, plan.measure_clbits
+                )
+                lowered = run_bddseqsim_lowered(structure, preset_path)
+            else:
+                if self.sim_mode == 'preset':
+                    sim.run(mode='preset', presets=self.preset_values)
+                else:  # sample mode
+                    sim.run(mode='sample')
 
             self.compute_time = time.perf_counter() - t_start_compute
             # =======================================================
 
             print("✅ Execution Completed!")
             
-            sim.print_state_vec()
+            if sim is not None:
+                sim.print_state_vec()
+            if lowered is not None:
+                print(f"Lowered BDDSeqSim probability: {lowered.probability:.17g}")
 
             # Print time statistics
             self._print_stats()
@@ -134,6 +164,26 @@ class ExperimentRunner:
         print(f"---------------------------")
         print(f"⏱️ Total Runtime           : {total_runtime:.9f} s")
         print("===========================")
+
+    def _preset_path_for_measurements(
+        self, preset_values: Dict[int, List[int]], measure_clbits: tuple[int, ...]
+    ) -> List[int] | List[List[int]]:
+        paths = []
+        for clbit in measure_clbits:
+            if clbit not in preset_values:
+                raise ValueError(f"Missing preset values for measured clbit {clbit}.")
+            paths.append(list(preset_values[clbit]))
+
+        if not paths:
+            raise ValueError("Lowered preset path requires at least one measured clbit.")
+
+        length = len(paths[0])
+        if any(len(path) != length for path in paths):
+            raise ValueError("All measured clbit preset paths must have equal length.")
+
+        if len(paths) == 1:
+            return paths[0]
+        return [[path[i] for path in paths] for i in range(length)]
 
 
 if __name__ == "__main__":
