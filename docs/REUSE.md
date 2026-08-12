@@ -18,8 +18,9 @@ This guide complements:
 
 ### 1.1 Use QSeqSim as a library (recommended stable API)
 
-- Parse: `src.parser.QiskitParser`
-- Execute: `src.simulator.BDDSimulator`
+- Direct parse: `qseqsim.QuantumCircuitParser`
+- Parse OpenQASM interchange: `qseqsim.OpenQASM3Parser`
+- Execute: `qseqsim.QSeqSimulator`
 
 See: [docs/USER_GUIDE.md](USER_GUIDE.md)
 
@@ -73,14 +74,10 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from src.parser import QiskitParser
-from src.simulator import BDDSimulator
+from qseqsim import QSeqSimulator
 
 # build circuit ...
-parser = QiskitParser(qc)
-blocks = parser.parse()
-
-sim = BDDSimulator(blocks)
+sim = QSeqSimulator(qc)
 out = sim.run(mode="sample")  # or preset
 print(out)
 ```
@@ -109,15 +106,19 @@ python exp/simulation/exp_engine.py <group>/<name>
 
 Supporting a new gate usually requires updates in  **three places** .
 
-### Step A: Parser (`src/parser.py`)
+### Step A: Frontends (`src/qseqsim/qiskit_frontend.py` and `parser.py`)
 
 Goal: ensure the gate appears in the IR as a supported `GateOp`.
 
-1. Add the gate name to:
+1. Add the direct gate name to:
+
+* `QuantumCircuitParser.SUPPORTED_GATES`
+
+2. Keep the secondary frontend aligned by adding the gate name to:
 
 * `QiskitParser.SUPPORTED_GATES`
 
-2. Update `_parse_gate`:
+3. Update the direct `_parse_operation`/`_lower_gate` and OpenQASM `_parse_gate` paths:
 
 * If the gate is already in the kernel’s native set: map its name directly.
 * If it is a rotation gate: either (i) decompose it into existing supported gates, or (ii) reject unsupported parameters with a clear error message.
@@ -162,7 +163,7 @@ QSeqSim distinguishes:
 
 This behavior is controlled by:
 
-* parser pass: `_mark_final_measurements` (sets `GateOp.is_final_measure`)
+* shared parser pass: `mark_final_measurements` (sets `GateOp.is_final_measure`)
 * simulator: `_handle_measurement` and `_decide_final_measure_value`
 
 If you change the rule for “final measurement”, document it in:
@@ -177,6 +178,7 @@ QSeqSim includes runnable regression scripts under `test/`:
 
 * `test/test_parser.py`: exercises CQC/DQC/SQC parsing + simulation
 * `test/test_kernel.py`: exercises kernel gate updates and amplitude printing
+* `test/test_direct_qiskit_frontend.py`: exercises direct/QASM differential semantics, control-flow bit mapping, public integration, and unsupported features
 
 ### 5.1 Add a new regression test
 

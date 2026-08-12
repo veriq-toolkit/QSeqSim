@@ -8,15 +8,33 @@ semantics.
 New code should use the stable top-level API:
 
 ```python
-from qseqsim import QSeqSimulator, QiskitParser
+from qseqsim import QSeqSimulator, QuantumCircuitParser, OpenQASM3Parser
 ```
 
 Advanced modules are available under `qseqsim.kernel`, `qseqsim.parser`,
 `qseqsim.seqsim_lowering`, and `qseqsim.simulator`, but the top-level names are
 the preferred compatibility surface.
 
-`QSeqSimulator` currently accepts parsed blocks, exactly as `BDDSimulator` does.
-It does not implement the planned direct Qiskit frontend.
+`QSeqSimulator` accepts a `QuantumCircuit` directly, parsed blocks exactly as
+`BDDSimulator` does, or no initial program followed by `run(qc)`. Direct inputs
+use `QuantumCircuitParser` and never call `qiskit.qasm3.dumps`.
+
+`OpenQASM3Parser` is the secondary interchange frontend. `QiskitParser` remains
+an alias for that existing implementation so CP2 callers keep identical input
+semantics. It has not been silently repurposed as the direct parser.
+
+Migration examples:
+
+```python
+# Recommended CP3 path
+result = QSeqSimulator(qc).run()
+
+# CP2-compatible path (still OpenQASM-mediated)
+result = QSeqSimulator(QiskitParser(qc).parse()).run()
+
+# Raw OpenQASM 3 interchange
+blocks = OpenQASM3Parser(qasm_str=qasm_text).parse()
+```
 
 ## FM research checkout compatibility
 

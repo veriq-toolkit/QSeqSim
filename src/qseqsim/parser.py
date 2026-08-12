@@ -152,14 +152,69 @@ class SQC:
                 f"      Internal (Rest):    {sorted(list(self.internal_qubits))}\n"
                 f"      Body: {len(self.body_block)} sub-blocks")
 
+
+def mark_final_measurements(blocks: list) -> None:
+    """Mark terminal readouts without changing the existing IR semantics."""
+    control_flag_clbits: set[int] = set()
+
+    def collect_flags(blks: list):
+        for blk in blks:
+            if isinstance(blk, DQC):
+                control_flag_clbits.update(blk.target_clbits)
+                for sub_blks in blk.cases.values():
+                    collect_flags(sub_blks)
+                collect_flags(blk.default_block)
+            elif isinstance(blk, SQC):
+                control_flag_clbits.update(blk.loop_condition.get('indices', []))
+                collect_flags(blk.body_block)
+
+    collect_flags(blocks)
+    qubit_usages: Dict[int, List[Tuple[int, GateOp]]] = {}
+    op_counter = 0
+
+    def dfs_collect(blks: list):
+        nonlocal op_counter
+        for blk in blks:
+            if isinstance(blk, CQC):
+                for op in blk.ops:
+                    if op.name == "break":
+                        continue
+                    current_id = op_counter
+                    op_counter += 1
+                    for q in op.qubits:
+                        qubit_usages.setdefault(q, []).append((current_id, op))
+            elif isinstance(blk, DQC):
+                for sub_blks in blk.cases.values():
+                    dfs_collect(sub_blks)
+                dfs_collect(blk.default_block)
+            elif isinstance(blk, SQC):
+                dfs_collect(blk.body_block)
+
+    dfs_collect(blocks)
+    for usage_list in qubit_usages.values():
+        if not usage_list:
+            continue
+        usage_list.sort(key=lambda item: item[0])
+        last_op = usage_list[-1][1]
+        if last_op.name != "measure":
+            continue
+        if any(c in control_flag_clbits for c in last_op.c_targets):
+            continue
+        last_op.is_final_measure = True
+
 # ==========================================
 # 2. Core Parser Class
 # ==========================================
 
 class QiskitParser:
-    def __init__(self, circuit: QuantumCircuit | None = None):
+    def __init__(
+        self,
+        circuit: QuantumCircuit | None = None,
+        *,
+        qasm_str: str | None = None,
+    ):
         self.circuit = circuit
-        self.qasm_str = ""
+        self.qasm_str = qasm_str or ""
         self.symbol_table = {}
         self.global_num_qubits = 0
         self.register_offsets = {}
@@ -592,65 +647,7 @@ class QiskitParser:
         - Otherwise, it is a mid-measure.
         """
 
-        # 1. Collect all classical bits involved in "control flow conditions"
-        control_flag_clbits: set[int] = set()
+        mark_final_measurements(blocks)
 
-        def collect_flags(blks: list):
-            for blk in blks:
-                if isinstance(blk, DQC):
-                    control_flag_clbits.update(blk.target_clbits)
-                    for sub_blks in blk.cases.values():
-                        collect_flags(sub_blks)
-                    collect_flags(blk.default_block)
-                elif isinstance(blk, SQC):
-                    control_flag_clbits.update(blk.loop_condition.get('indices', []))
-                    collect_flags(blk.body_block)
 
-        collect_flags(blocks)
-
-        # 2. Global Timeline: Assign a global op_id for each GateOp, collect (qubit, op_id, op_ref)
-        #    Note: Even inside branches/loops, we simply linearize in DFS order.
-        qubit_usages: Dict[int, List[Tuple[int, GateOp]]] = {}  # q -> [(op_id, op_ref), ...]
-        op_counter = 0
-
-        def dfs_collect(blks: list):
-            nonlocal op_counter
-            for blk in blks:
-                if isinstance(blk, CQC):
-                    for op in blk.ops:
-                        # Skip break
-                        if op.name == "break":
-                            continue
-                        current_id = op_counter
-                        op_counter += 1
-                        for q in op.qubits:
-                            qubit_usages.setdefault(q, []).append((current_id, op))
-                elif isinstance(blk, DQC):
-                    # Branches/Default are also included in the timeline (conservative approach)
-                    for sub_blks in blk.cases.values():
-                        dfs_collect(sub_blks)
-                    dfs_collect(blk.default_block)
-                elif isinstance(blk, SQC):
-                    dfs_collect(blk.body_block)
-
-        dfs_collect(blocks)
-
-        # 3. Find "last op" for each qubit. If it's a measurement and not involved in control flow, mark as final
-        for q, usage_list in qubit_usages.items():
-            if not usage_list:
-                continue
-            # Sort by op_id ascending
-            usage_list.sort(key=lambda x: x[0])
-            last_id, last_op = usage_list[-1]
-
-            # If the last operation is not a measurement, skip directly
-            if last_op.name != "measure":
-                continue
-
-            # If this measurement writes to a control flow classical bit, force mid-measure
-            is_control_flow_measure = any(c in control_flag_clbits for c in last_op.c_targets)
-            if is_control_flow_measure:
-                continue
-
-            # Otherwise, this is the final measurement for qubit q
-            last_op.is_final_measure = True
+OpenQASM3Parser = QiskitParser

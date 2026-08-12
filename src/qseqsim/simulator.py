@@ -11,7 +11,6 @@ class BDDSimulator:
         self.precision = precision
         if not self.blocks:
             self.num_qubits = 0
-            print("[Sim Warning] Empty circuit blocks.")
         else:
             self.num_qubits = self.blocks[0].global_num_qubits
 

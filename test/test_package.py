@@ -3,7 +3,15 @@ import importlib.metadata
 from qiskit import QuantumCircuit
 
 import qseqsim
-from qseqsim import BDDSimulator, QSeqSimulator, QiskitParser, SymbolicEvaluationError
+from qseqsim import (
+    BDDSimulator,
+    OpenQASM3Parser,
+    QSeqSimulator,
+    QiskitParser,
+    QuantumCircuitParser,
+    SymbolicEvaluationError,
+    UnsupportedQiskitFeatureError,
+)
 from qseqsim._backend import cudd
 
 
@@ -12,6 +20,9 @@ def test_public_api_and_canonical_backend():
     assert cudd.__name__ == "dd.cudd"
     assert qseqsim.__version__ == "0.1.0.dev0"
     assert issubclass(SymbolicEvaluationError, RuntimeError)
+    assert issubclass(UnsupportedQiskitFeatureError, ValueError)
+    assert OpenQASM3Parser is QiskitParser
+    assert QuantumCircuitParser.__name__ == "QuantumCircuitParser"
 
 
 def test_public_api_runs_existing_parser_pipeline():

@@ -42,20 +42,21 @@ python test/test_kernel.py
 
 ## 2. Minimal library workflow
 
-The intended “public” workflow is:
+The recommended public workflow is:
 
-1. Write a `qiskit.QuantumCircuit` with classical control (`if_test`, `switch`, `while_loop`, `for_loop`, mid measurements).
-2. Parse it with `qseqsim.QiskitParser` into an internal IR (blocks of `CQC/DQC/SQC`).
-3. Execute the IR with `qseqsim.QSeqSimulator`, which delegates state updates and probability computations to the existing BDD kernel.
+1. Write a supported `qiskit.QuantumCircuit` with gates, measurements, and optionally `if_test`, `while_loop`, or `for_loop`.
+2. Pass it directly to `qseqsim.QSeqSimulator`.
+3. Execute it; the direct frontend maps Qiskit bits and control-flow blocks to `CQC/DQC/SQC` IR without OpenQASM serialization.
 
-The parser still uses the FM implementation's Qiskit → OpenQASM 3 → IR route.
-A direct `QuantumCircuit`/`ControlFlowOp` frontend is not part of CP2.
+`OpenQASM3Parser` (and its compatibility name `QiskitParser`) remains the
+secondary interchange/FM path. It is intentionally separate from the direct
+frontend.
 
 ### 2.1 End-to-end minimal snippet
 
 ```python
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qseqsim import QSeqSimulator, QiskitParser
+from qseqsim import QSeqSimulator
 
 q = QuantumRegister(1, "q")
 c = ClassicalRegister(1, "c")
@@ -64,10 +65,7 @@ qc = QuantumCircuit(q, c)
 qc.h(q[0])
 qc.measure(q[0], c[0])     # may become "final" or "mid" depending on later control use
 
-parser = QiskitParser(qc)
-blocks = parser.parse()
-
-sim = QSeqSimulator(blocks, precision=32)
+sim = QSeqSimulator(qc, precision=32)
 clbits = sim.run(mode="sample")
 print("classical store:", clbits)
 sim.print_state_vec()
@@ -79,19 +77,39 @@ sim.print_state_vec()
 
 This section documents the API that users should rely on for reuse.
 
-### 3.1 `QiskitParser` (OpenQASM 3 → CQC/DQC/SQC blocks)
+The one-shot spelling `QSeqSimulator().run(qc)` is also supported. Existing IR
+callers can continue to construct `QSeqSimulator(parsed_blocks)`.
 
-**Public import:** `from qseqsim import QiskitParser`
+### 3.1 `QuantumCircuitParser` (recommended direct frontend)
+
+**Public import:** `from qseqsim import QuantumCircuitParser`
+
+```python
+blocks = QuantumCircuitParser(qc).parse()
+```
+
+The parser walks `QuantumCircuit.data`. For each control-flow instruction, its
+outer `qubits`/`clbits` are first translated through the current circuit frame;
+the resulting global indices are then positionally zipped with every inner
+block's `qubits`/`clbits`. This is why reordered and subset operands do not rely
+on coincident local/global indices.
+
+`QiskitCircuitFrontend` is an equivalent descriptive alias.
+
+### 3.2 `OpenQASM3Parser` / `QiskitParser` (secondary frontend)
+
+**Public import:** `from qseqsim import OpenQASM3Parser, QiskitParser`
 
 **Class:** `QiskitParser`
 
 #### Constructor
 
 ```python
-QiskitParser(circuit: QuantumCircuit | None = None)
+OpenQASM3Parser(circuit: QuantumCircuit | None = None, *, qasm_str: str | None = None)
 ```
 
-* `circuit`: optional Qiskit circuit. If provided, `parse()` will export QASM3 via `qiskit.qasm3.dumps`.
+* `qasm_str`: raw OpenQASM 3 interchange text.
+* `circuit`: compatibility input. If provided, this secondary path exports via `qiskit.qasm3.dumps` before parsing.
 
 #### Main method
 
@@ -102,7 +120,7 @@ parse() -> list
 Returns a list of *blocks* preserving program order:
 
 * `CQC`: straight-line quantum gates and measurements
-* `DQC`: branching (`if/else`, `switch`) controlled by classical bits
+* `DQC`: branching controlled by classical bits
 * `SQC`: `while` loops with validation and external/internal qubit partitioning
 
 #### Supported gate set (Clifford+T + a few multi-qubit gates)
@@ -112,7 +130,7 @@ The parser accepts (after normalization/decomposition):
 * 1-qubit: `x y z h s sdg t tdg x2p y2p`
 * 2-qubit: `cx cz swap`
 * 3-qubit: `ccx` (Toffoli), `cswap` (Fredkin)
-* ops: `measure`, `break`
+* ops: `measure`, `break` (OpenQASM compatibility path only)
 * `for_loop` is unrolled if Qiskit emits it as `ForInLoop` in QASM3.
 
 Rotation support:
@@ -123,9 +141,33 @@ Rotation support:
 
 If a gate/angle is unsupported, `parse()` raises a `ValueError` with a descriptive message.
 
----
+### 3.3 Direct Qiskit feature matrix
 
-### 3.2 IR objects: `GateOp`, `CQC`, `DQC`, `SQC`
+| Feature | Status | Direct frontend behavior |
+| --- | --- | --- |
+| `x y z h s sdg t tdg` | Supported | Direct `GateOp` mapping |
+| `cx cz swap ccx cswap mcx` | Supported | Direct operand mapping |
+| `rx(±pi/2)`, `ry(±pi/2)` | Supported | Existing discrete decomposition |
+| `rz` / `p` Clifford+T angles | Supported | Existing discrete decomposition |
+| `measure` | Supported | Global qubit/clbit targets; existing final-readout pass |
+| Tuple condition `(Clbit, int)` | Supported | One global condition bit |
+| Tuple condition `(ClassicalRegister, int)` | Supported | Little-endian ordered global bits |
+| `IfElseOp` | Supported | `DQC` case + default block |
+| `WhileLoopOp` | Supported | `SQC`; existing validation and 1000-iteration guard |
+| `ForLoopOp` | Supported | Finite frontend unrolling; loop parameter bound per iteration |
+| Nested `if` inside `while` | Supported | Nested `DQC` in `SQC` for the general executor |
+| `SwitchCaseOp` | Unsupported | `UnsupportedQiskitFeatureError` naming op/type |
+| `BreakLoopOp`, `ContinueLoopOp` | Unsupported | Same explicit error; no partial semantics |
+| Classical expression conditions | Unsupported | Explicit error naming the owning control-flow op |
+| Dynamic variables / `Store` | Unsupported | Explicit dynamic-variable or `Store` error |
+| Nonzero or symbolic circuit `global_phase` | Unsupported | Explicit error; never silently discarded |
+| Other gates/instructions | Unsupported | Explicit error naming instruction type and op name |
+
+`ForLoopOp` is not represented by a new runtime IR node because the current IR
+has no counted-loop semantics. Finite unrolling is exact for the supported body,
+including parameter binding and nested supported control flow.
+
+### 3.4 IR objects: `GateOp`, `CQC`, `DQC`, `SQC`
 
 **Public import:** `from qseqsim import CQC, DQC, SQC, GateOp`
 
@@ -140,7 +182,7 @@ If a gate/angle is unsupported, `parse()` raises a `ValueError` with a descripti
 
 ---
 
-### 3.3 `QSeqSimulator` (small-step semantics over blocks)
+### 3.5 `QSeqSimulator` (small-step semantics over blocks)
 
 **Public import:** `from qseqsim import QSeqSimulator`
 
@@ -150,10 +192,12 @@ If a gate/angle is unsupported, `parse()` raises a `ValueError` with a descripti
 #### Constructor
 
 ```python
-QSeqSimulator(parsed_blocks: list, precision: int = 32)
+QSeqSimulator(program: QuantumCircuit | list | None = None, precision: int = 32)
 ```
 
-* Initializes a BDD kernel `BDDCombSim(num_qubits, precision)` and sets basis state to |0…0⟩ if supported by the kernel.
+* A `QuantumCircuit` is parsed through `QuantumCircuitParser` without OpenQASM.
+* A list preserves the CP2 parsed-IR contract.
+* `None` permits later use of `run(qc)` or `run(circuit=qc, ...)`.
 
 #### Execute
 
@@ -167,6 +211,8 @@ run(mode: str = "sample", presets: dict[int, list[int]] | None = None) -> dict[i
 * If exact symbolic probability evaluation exceeds Python's recursion limit,
   raises `qseqsim.SymbolicEvaluationError`. QSeqSim does not substitute a
   uniform or approximate distribution.
+* To load while running, use `run(qc)` for sample mode or
+  `run(mode="preset", presets=..., circuit=qc)`.
 
 #### Inspect final state
 
@@ -278,8 +324,8 @@ to approximate symbolic model counting.
 * Measurements that update an SQC loop guard must be the last operation on
   their measured qubits under the current parser/IR validation.
 
-The CP3 direct-`QuantumCircuit` frontend may remove limitations caused solely
-by the OpenQASM 3 translation route. It does not by itself change the
+The direct `QuantumCircuit` frontend removes limitations caused solely by the
+OpenQASM 3 translation route. It does not change the
 specialized `BDDSeqSim` lowering contract, the SQC IR validation, or the
 1000-iteration executor guard; those require separate explicit changes.
 
