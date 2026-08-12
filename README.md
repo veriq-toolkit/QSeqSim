@@ -1,22 +1,68 @@
-# QSeqSim: A Symbolic Simulator for Qiskit While Loops using Sequential Quantum Circuits
+# QSeqSim
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**QSeqSim** is a Qiskit-integrated symbolic backend that fills the current gap of having no Qiskit-native support for simulating `while`-loop quantum programs and their induced sequential quantum circuits (SQCs).
+**QSeqSim** provides structure-aware symbolic simulation of dynamic and
+sequential Qiskit circuits using binary decision diagrams (BDDs) and weighted
+model counting. It operates directly on `QuantumCircuit` control flow and gives
+measurement-driven `while` loops an explicit sequential-circuit semantics with
+state retention and feedback.
 
-QSeqSim directly consumes Qiskit `QuantumCircuit` and `ControlFlowOp` objects and organises them into combinational, dynamic, and sequential circuits. It assigns `while`-loops a precise sequential circuit semantics with explicit internal and external qubits. An OpenQASM 3 parser remains available as a secondary interchange and FM-compatibility frontend.
+QSeqSim and Qiskit Aer address different simulation regimes. Aer is a mature,
+high-performance numerical simulator with broad methods and noise support;
+QSeqSim targets symbolic sharing in structured dynamic and sequential circuits.
+It is not presented as a general Aer replacement or as universally faster.
 
-Building on this semantics, QSeqSim adopts a BDD-based symbolic representation and systematically integrates model counting techniques to optimise probability computation over structured and sparse BDDs. It enables efficient symbolic execution of sequential quantum circuits, scaling to substantial while-induced circuits (e.g., simulating Quantum Random Walks with over 1000 qubits for more than 10 loop iterations).
+QSeqSim is developed as part of **Veri-Q**. The Python distribution and import
+namespace remain `qseqsim`; ecosystem display branding can be selected at
+submission time without renaming the API. OpenQASM 3 remains available as a
+secondary interchange and FM-artifact compatibility frontend.
 
-## Key Features
+## Three API layers
 
-- **Direct While-Loop Support**: Executes Qiskit programs containing `while`-loops by giving them an executable small-step semantics, unlike standard simulators that often fail or unroll loops.
-- **Symbolic Simulation**: Uses Binary Decision Diagrams (BDDs) (based on `dd` package) for efficient state representation.
-- **Sequential Circuit Semantics**: Models loops as Sequential Quantum Circuits (SQCs) with state retention and feedback.
-- **High Precision & Scalability**:
-  - Implements **Exact Zero Check** using integer arithmetic to eliminate floating-point noise.
-  - Uses `Decimal` for high-precision probability calculations (supporting probabilities as low as $10^{-78}$).
-  - Scales to 1000+ qubits for specific structured circuits like Quantum Random Walks.
+```python
+from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qseqsim import QSeqSamplerV2, QSeqSimBackend, QSeqSimulator
+
+q = QuantumRegister(1, "q")
+c = ClassicalRegister(1, "c")
+circuit = QuantumCircuit(q, c)
+with circuit.while_loop((c[0], 0)):
+    circuit.x(q[0])
+    circuit.measure(q[0], c[0])
+
+# Native symbolic state/path interface.
+native_clbits = QSeqSimulator(circuit).run()
+
+# Qiskit BackendV2: JobV1, Result, counts, and optional memory.
+backend_counts = QSeqSimBackend(num_qubits=1).run(
+    circuit, shots=128, seed_simulator=7
+).result().get_counts()
+
+# Native Primitive V2: PUBs and register-separated BitArray data.
+sampler_counts = QSeqSamplerV2(default_shots=128, seed=7).run(
+    [circuit]
+).result()[0].data.c.get_counts()
+```
+
+| API | Use it for |
+| --- | --- |
+| `QSeqSimulator` | Native symbolic execution, state/path inspection, and preset measurements |
+| `QSeqSimBackend` | Qiskit BackendV2 transpilation, jobs, counts, and memory |
+| `QSeqSamplerV2` | Primitive V2 PUBs, parameter sweeps, and per-register `BitArray` results |
+
+The public probability contract is binary64 even though model counts and the
+pre-conversion algebra use stronger internal representations. See
+[Public numerical contract](docs/NUMERICAL_CONTRACT.md).
+
+## Scope
+
+- BDD state representation and weighted model counting for structured circuits.
+- Sequential circuit semantics with state retention and feedback.
+- Direct Qiskit support for tested `if_test`, `while_loop`, and finite
+  `for_loop` constructs; unsupported semantics fail explicitly.
+- Demonstrated large structured QRW cases in the FM artifact. These results are
+  workload-specific, not a general simulator performance claim.
 
 ## Installation
 
@@ -181,7 +227,7 @@ The three API layers serve different Qiskit integration levels:
 
 | API | Role |
 | --- | --- |
-| `QSeqSimulator` | Native symbolic/exact-style state and path interface |
+| `QSeqSimulator` | Native symbolic state and path interface |
 | `QSeqSimBackend` | BackendV2 compatibility (`JobV1`, counts, memory) |
 | `QSeqSamplerV2` | Native Primitive V2 interface (PUBs, `PrimitiveResult`, per-register `BitArray`) |
 
@@ -271,6 +317,8 @@ python exp/simulation/exp_engine.py qiskit_grover
 ## Documentation (User / Reuse / AE)
 
 - **User guide (library API, semantics, troubleshooting):** [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
+- **Public numerical contract:** [docs/NUMERICAL_CONTRACT.md](docs/NUMERICAL_CONTRACT.md)
+- **Ecosystem benchmark:** [docs/ECOSYSTEM_BENCHMARK.md](docs/ECOSYSTEM_BENCHMARK.md)
 - **Reuse & extension guide (add benchmarks / add gates / testing):** [docs/REUSE.md](docs/REUSE.md)
 - **Environment & installation notes (Docker/native, CUDD + dd):** [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
 - **Package API and FM import migration:** [docs/PACKAGING.md](docs/PACKAGING.md)

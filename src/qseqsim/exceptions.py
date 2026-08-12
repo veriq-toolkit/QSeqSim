@@ -2,7 +2,7 @@
 
 
 class SymbolicEvaluationError(RuntimeError):
-    """Raised when the symbolic kernel cannot complete an exact evaluation."""
+    """Raised when symbolic branch/model-count evaluation cannot complete."""
 
 
 class UnsupportedQiskitFeatureError(ValueError):

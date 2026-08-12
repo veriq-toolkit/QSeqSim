@@ -241,7 +241,20 @@ def test_probability_float_conversion_boundary(monkeypatch, binary_exponent, exp
     )
     simulator.k = binary_exponent
 
-    assert simulator.get_prob([], []) == expected
+    probability = simulator.get_prob([], [])
+
+    assert type(probability) is float
+    assert probability == expected
+
+
+def test_public_probability_contract_is_binary64():
+    simulator = BDDCombSim(1, 3)
+    simulator.init_basis_state(0)
+
+    probability = simulator.get_prob([0], [0])
+
+    assert type(probability) is float
+    assert probability == 1.0
 
 
 def test_bddseqsim_lowering_rejects_nested_control_flow():

@@ -164,7 +164,9 @@ qubits,k,reachable,probability,time_seconds
 - `qubits`: Total number of qubits in the experiment.
 - `k`: Iteration count (e.g., after `k` iterations).
 - `reachable`: Reachability indicator (`Yes` or `No`).
-- `probability`: Exact reachability probability for the target event encoded by the preset measurement pattern.
+- `probability`: Binary64 reachability probability for the target event encoded
+  by the preset measurement pattern. Branch/model-count evaluation is symbolic
+  before the public float conversion.
 - `time_seconds`: Runtime for this configuration (seconds).
 
 ## 8. Table 5 (`ae/results/table5.csv`) — Measurement-outcome reachability (RUS termination patterns)

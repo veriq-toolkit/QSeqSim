@@ -79,7 +79,7 @@ class QSeqSimBackend(BackendV2):
     @staticmethod
     def _build_target(num_qubits: int) -> Target:
         target = Target(
-            description="QSeqSim exact symbolic operations (ideal all-to-all simulator)",
+            description="QSeqSim symbolic operations (ideal all-to-all simulator)",
             num_qubits=num_qubits,
         )
         for instruction in (

@@ -5,12 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "qseqsim"
 version = "0.1.0.dev0"
-description = "A symbolic simulator for Qiskit while loops using sequential quantum circuits"
+description = "Structure-aware symbolic simulation of dynamic and sequential Qiskit circuits"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 license = "Apache-2.0"
 authors = [
   { name = "Zihao Li", email = "lizh@ios.ac.cn" },
+  { name = "Ji Guan" },
+  { name = "Mingsheng Ying" },
 ]
 maintainers = [
   { name = "Zihao Li", email = "lizh@ios.ac.cn" },
@@ -23,8 +25,9 @@ keywords = [
   "symbolic simulation",
 ]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
   "Operating System :: MacOS",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3 :: Only",
@@ -53,11 +56,17 @@ Homepage = "https://github.com/Veri-Q/QSeqSim"
 Documentation = "https://github.com/Veri-Q/QSeqSim#readme"
 Issues = "https://github.com/Veri-Q/QSeqSim/issues"
 Repository = "https://github.com/Veri-Q/QSeqSim.git"
+Changelog = "https://github.com/Veri-Q/QSeqSim/blob/main/CHANGELOG.md"
+Paper = "https://doi.org/10.1007/978-3-032-26204-2_30"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["qseqsim*"]
 namespaces = false
+
+[tool.setuptools]
+include-package-data = false
+license-files = ["LICENSE"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]

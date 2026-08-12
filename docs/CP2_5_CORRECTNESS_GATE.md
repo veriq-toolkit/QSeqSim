@@ -62,10 +62,10 @@ Changing `get_prob()` to return `Decimal` would propagate through random
 sampling, normalization, `global_probability`, sequential traces, public result
 types, and artifact output formatting. There is no isolated internal float
 conversion that can be delayed without changing those contracts. CP2.5
-therefore records and tests the boundary instead of performing a broad numeric
-rewrite. This is not a CP3 blocker. Before the v0.1.0 release gate, the project
-must choose and document whether binary64 remains the public result contract or
-whether to add a separate high-precision result API.
+therefore recorded and tested the boundary instead of performing a broad
+numeric rewrite. CP6 resolves the release decision: binary64 is the v0.1.0
+public probability contract, and no separate high-precision result API is
+included. See [the public numerical contract](NUMERICAL_CONTRACT.md).
 
 ## Capability boundaries
 

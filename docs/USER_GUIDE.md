@@ -205,7 +205,9 @@ QSeqSimulator(program: QuantumCircuit | list | None = None, precision: int = 32)
 run(mode: str = "sample", presets: dict[int, list[int]] | None = None) -> dict[int, int]
 ```
 
-* `mode="sample"`: measurement outcomes are sampled using exact probabilities from the kernel (`get_prob`) when available.
+* `mode="sample"`: measurement outcomes are sampled using probabilities from
+  symbolic branch/model-count evaluation, converted to the public binary64
+  contract by `get_prob()`.
 * `mode="preset"`: mid-circuit measurements consume preset bits from `presets[c_idx]` (FIFO). If missing for **mid** measurement → error.
 * Returns `clbit_store: dict[int,int]` mapping global classical-bit indices to observed values.
 * If exact symbolic probability evaluation exceeds Python's recursion limit,
@@ -335,7 +337,7 @@ The three public execution layers are therefore:
 
 | API | Intended use | Result model |
 | --- | --- | --- |
-| `QSeqSimulator` | Native symbolic/exact-style state and path workflows | Native classical store/state inspection |
+| `QSeqSimulator` | Native symbolic state and path workflows | Native classical store/state inspection |
 | `QSeqSimBackend` | BackendV2 transpilation, jobs, counts, and memory | `JobV1` / `Result` |
 | `QSeqSamplerV2` | Qiskit Primitive V2 PUB workflows | `BasePrimitiveJob` / `PrimitiveResult` / register `BitArray` fields |
 
@@ -430,6 +432,9 @@ can represent positive values down to approximately `4.94e-324`; an exact
 probability of `2**-1075` converts to zero. Long path-probability products have
 the same binary64 underflow boundary. This is a result-API limit, not a switch
 to approximate symbolic model counting.
+
+The normative v0.1.0 boundary is documented in
+[Public numerical contract](NUMERICAL_CONTRACT.md).
 
 ### 6.6 Control-flow and lowering boundaries
 

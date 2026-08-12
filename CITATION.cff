@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use QSeqSim, cite the software and the FM 2026 paper."
+title: "QSeqSim"
+type: software
+version: 0.1.0.dev0
+license: Apache-2.0
+repository-code: "https://github.com/Veri-Q/QSeqSim"
+url: "https://github.com/Veri-Q/QSeqSim"
+authors:
+  - family-names: Li
+    given-names: Zihao
+  - family-names: Guan
+    given-names: Ji
+  - family-names: Ying
+    given-names: Mingsheng
+preferred-citation:
+  type: conference-paper
+  title: "QSeqSim: A Symbolic Simulator for Qiskit While Loops Using Sequential Quantum Circuits"
+  authors:
+    - family-names: Li
+      given-names: Zihao
+    - family-names: Guan
+      given-names: Ji
+    - family-names: Ying
+      given-names: Mingsheng
+  collection-title: "Formal Methods: 27th International Symposium, FM 2026, Proceedings, Part I"
+  year: 2026
+  start: 578
+  end: 598
+  doi: "10.1007/978-3-032-26204-2_30"
+  url: "https://arxiv.org/abs/2605.14881"

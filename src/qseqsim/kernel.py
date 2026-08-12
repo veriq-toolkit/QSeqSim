@@ -597,10 +597,12 @@ class BDDCombSim:
             return -final_val - 1
 
     def get_prob(self, target_list, result_list):
-        """
-        Flagship Probability Calculation: Supports 256+ qubits.
-        1. Uses Integer Square Discrimination for [Exact Zero Check] to eliminate noise.
-        2. Uses Decimal for [High Precision Calculation] to preserve tiny probabilities around 10^-78.
+        """Return a public binary64 probability after symbolic evaluation.
+
+        Model counts use Python integers, algebraic terms use 150-digit Decimal
+        arithmetic, and zero is decided using integer identities before the
+        final conversion. Those internal properties do not make the returned
+        Python ``float`` an arbitrary-precision result.
         """
         # 1. Construct constraints & 2. Apply constraints (unchanged)
         bool_list = [self.BDD.false, self.BDD.true]
@@ -674,9 +676,8 @@ class BDDCombSim:
         # High precision division
         total_prob_dec = numerator / divisor
 
-        # Convert back to float for user
-        # Python float can represent 1e-308, so 1e-78 is safe
-        # As long as calculation uses Decimal for precision, result is accurate
+        # Public v0.1.0 contract: binary64. The Decimal-to-float boundary is
+        # deliberate and regression-tested at 2**-1074 / 2**-1075.
         return abs(float(total_prob_dec))
 
     def _symbolic_inner_product(self, list1, list2, n_vars):
