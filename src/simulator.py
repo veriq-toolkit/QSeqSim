@@ -7,6 +7,7 @@ from src.parser import CQC, DQC, SQC, GateOp
 class BDDSimulator:
     def __init__(self, parsed_blocks: list, precision: int = 32):
         self.blocks = parsed_blocks
+        self.precision = precision
         if not self.blocks:
             self.num_qubits = 0
             print("[Sim Warning] Empty circuit blocks.")
@@ -32,9 +33,14 @@ class BDDSimulator:
 
     def run(self, mode: str = 'sample', presets: Optional[Dict[int, List[int]]] = None):
         self.mode = mode
-        self.presets = presets if presets else {}
+        self.presets = {
+            clbit: list(outcomes) for clbit, outcomes in (presets or {}).items()
+        }
         self.clbit_store.clear()
         self.global_probability = 1.0 # Reset probability
+        self.kernel = BDDCombSim(self.num_qubits, self.precision)
+        if hasattr(self.kernel, 'init_basis_state'):
+            self.kernel.init_basis_state(0)
         
         print(f"\n[Sim] Starting Simulation (Mode: {self.mode}, Qubits: {self.num_qubits})...")
         try:

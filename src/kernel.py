@@ -665,7 +665,10 @@ class BDDCombSim:
     def _symbolic_inner_product(self, list1, list2, n_vars):
         """
         Calculates inner product of two integer vector BDDs.
-        Fix NaN issue: Do not pass nvars to count, manually calculate scaling factor.
+
+        Model counts are accumulated as Python integers.  ``dd.cudd.count``
+        returns a C ``double`` and silently rounds counts above 2**53, so it
+        cannot be used on the large supports targeted by QSeqSim.
         """
         total = 0
         r = self.r
@@ -684,31 +687,81 @@ class BDDCombSim:
                 if and_node == self.BDD.false:
                     continue
                 
-                # 1. Get Raw Count
-                # Do not pass nvars, let it count satisfied paths for variables actually in BDD
-                # count returns float, must convert to int
-                raw_count = int(self.BDD.count(and_node))
-                
-                # 2. Get Support Size
-                # support returns set of variables actually depended on by the node
+                # Count over the node's support exactly.  The CUDD wrapper's
+                # public count API returns float and loses integer precision
+                # for sufficiently large model sets.
+                raw_count = self._exact_model_count(and_node)
+
                 supp = self.BDD.support(and_node)
                 len_supp = len(supp)
-                
-                # 3. Manually Calculate Scaling Factor
+
+                # Manually calculate the scaling factor.
                 # n_vars is the logical number of remaining free qubits
                 # diff is the number of free qubits existing but not used in BDD, each contributes 2x paths
                 diff = n_vars - len_supp
-                
-                # Defensive coding: theoretically diff >= 0. If < 0, logic error, keep original.
-                shift = diff if diff > 0 else 0
-                
+
+                if diff < 0:
+                    raise ValueError(
+                        "BDD support contains more variables than the logical "
+                        f"free-qubit count ({len_supp} > {n_vars})."
+                    )
+
                 # Bit shift equivalent to multiplying by 2^shift
-                real_count = raw_count << shift
+                real_count = raw_count << diff
                 
                 # Accumulate
                 total += weights[i] * weights[j] * real_count
                     
         return total
+
+    def _exact_model_count(self, node):
+        """Return the exact number of models over ``node``'s support.
+
+        CUDD stores complemented edges and may skip variable levels.  This
+        iterative post-order traversal accounts for both while keeping every
+        count as a Python integer.  Automatic reordering is temporarily
+        disabled so levels remain stable for the duration of the traversal,
+        then the manager's original configuration is restored.
+        """
+        support_size = len(self.BDD.support(node))
+        if support_size == 0:
+            return 0 if node == self.BDD.false else 1
+
+        variable_count = len(self.BDD.vars)
+        reordering_was_enabled = self.BDD.configure(reordering=False)["reordering"]
+        try:
+            memo = {self.BDD.false: 0, self.BDD.true: 1}
+            stack = [(node, False)]
+
+            while stack:
+                current, expanded = stack.pop()
+                if current in memo:
+                    continue
+
+                level, low, high = self.BDD.succ(current)
+                if current.negated:
+                    low = ~low
+                    high = ~high
+
+                if not expanded:
+                    stack.append((current, True))
+                    if low not in memo:
+                        stack.append((low, False))
+                    if high not in memo:
+                        stack.append((high, False))
+                    continue
+
+                low_level = min(low.level, variable_count)
+                high_level = min(high.level, variable_count)
+                low_gap = low_level - level - 1
+                high_gap = high_level - level - 1
+                memo[current] = (memo[low] << low_gap) + (memo[high] << high_gap)
+
+            root_count = memo[node] << node.level
+            unused_variable_count = variable_count - support_size
+            return root_count >> unused_variable_count
+        finally:
+            self.BDD.configure(reordering=reordering_was_enabled)
   
     def _get_value_from_list(self, bdd_list):
         """
