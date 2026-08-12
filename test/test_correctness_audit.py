@@ -6,8 +6,9 @@ from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 from src.kernel import BDDCombSim, BDDSeqSim
-from src.parser import CQC, DQC, SQC, QiskitParser
-from src.simulator import BDDSimulator
+from src.parser import CQC, DQC, SQC, GateOp, QiskitParser
+from src.seqsim_lowering import LoweringError, lower_to_bddseqsim
+from src.simulator import BDDSimulator, SymbolicEvaluationError
 
 
 def _kernel_state(sim):
@@ -171,3 +172,135 @@ def test_exact_model_count_above_binary64_integer_limit():
 
     assert rounded_count == 1 << 60
     assert exact_count == (1 << 60) - 1
+
+
+def test_mid_measurement_recursion_failure_is_explicit_and_next_run_is_clean(monkeypatch):
+    blocks = [
+        CQC(
+            [
+                GateOp("h", [0]),
+                GateOp("measure", [0], c_targets=[0]),
+            ],
+            global_num_qubits=1,
+        )
+    ]
+    simulator = BDDSimulator(blocks)
+    original_get_prob = BDDCombSim.get_prob
+
+    def fail_probability_evaluation(self, target_list, result_list):
+        raise RecursionError("forced symbolic traversal failure")
+
+    monkeypatch.setattr(BDDCombSim, "get_prob", fail_probability_evaluation)
+    with pytest.raises(SymbolicEvaluationError, match="Exact symbolic evaluation failed.*recursion limit") as exc_info:
+        simulator.run(mode="preset", presets={0: [0]})
+
+    assert isinstance(exc_info.value.__cause__, RecursionError)
+    assert simulator.clbit_store == {}
+    assert simulator.global_probability == 1.0
+
+    monkeypatch.setattr(BDDCombSim, "get_prob", original_get_prob)
+    assert simulator.run(mode="preset", presets={0: [0]}) == {0: 0}
+    assert simulator.global_probability == pytest.approx(0.5)
+
+
+def test_final_measurement_recursion_failure_is_explicit(monkeypatch):
+    blocks = [
+        CQC(
+            [GateOp("measure", [0], c_targets=[0], is_final_measure=True)],
+            global_num_qubits=1,
+        )
+    ]
+    simulator = BDDSimulator(blocks)
+
+    def fail_probability_evaluation(self, target_list, result_list):
+        raise RecursionError("forced symbolic traversal failure")
+
+    monkeypatch.setattr(BDDCombSim, "get_prob", fail_probability_evaluation)
+    with pytest.raises(SymbolicEvaluationError, match="final-readout probabilities") as exc_info:
+        simulator.run()
+
+    assert isinstance(exc_info.value.__cause__, RecursionError)
+    assert simulator.clbit_store == {}
+
+
+@pytest.mark.parametrize(
+    ("binary_exponent", "expected"),
+    [
+        (1074, float.fromhex("0x0.0000000000001p-1022")),
+        (1075, 0.0),
+    ],
+)
+def test_probability_float_conversion_boundary(monkeypatch, binary_exponent, expected):
+    simulator = BDDCombSim(1, 3)
+    simulator.init_basis_state(0)
+    terms = iter([1, 0, 0, 0, 0, 0, 0, 0])
+    monkeypatch.setattr(
+        simulator,
+        "_symbolic_inner_product",
+        lambda list1, list2, n_vars: next(terms),
+    )
+    simulator.k = binary_exponent
+
+    assert simulator.get_prob([], []) == expected
+
+
+def test_bddseqsim_lowering_rejects_nested_control_flow():
+    nested = DQC(
+        target_clbits=[1],
+        cases={0: [CQC([GateOp("x", [1])], global_num_qubits=2)]},
+        default_block=[],
+        global_num_qubits=2,
+    )
+    trailing_measurement = CQC(
+        [GateOp("measure", [0], c_targets=[0])], global_num_qubits=2
+    )
+    loop = SQC(
+        loop_condition={"indices": [0], "value": 0},
+        body_block=[nested, trailing_measurement],
+        global_num_qubits=2,
+    )
+
+    with pytest.raises(LoweringError, match="Nested control flow"):
+        lower_to_bddseqsim([loop])
+
+
+def test_bddseqsim_lowering_rejects_mid_body_measurement():
+    body = CQC(
+        [
+            GateOp("measure", [1], c_targets=[1]),
+            GateOp("x", [1]),
+            GateOp("measure", [0], c_targets=[0]),
+        ],
+        global_num_qubits=2,
+    )
+    loop = SQC(
+        loop_condition={"indices": [0], "value": 0},
+        body_block=[body],
+        global_num_qubits=2,
+    )
+
+    with pytest.raises(LoweringError, match="Mid-body measurements"):
+        lower_to_bddseqsim([loop])
+
+
+def test_general_simulator_stops_after_1000_loop_iterations(monkeypatch):
+    body = CQC(
+        [GateOp("measure", [0], c_targets=[0])], global_num_qubits=1
+    )
+    loop = SQC(
+        loop_condition={"indices": [0], "value": 0},
+        body_block=[body],
+        global_num_qubits=1,
+    )
+    simulator = BDDSimulator([loop])
+    iterations = 0
+
+    def execute_without_changing_guard(blocks):
+        nonlocal iterations
+        iterations += 1
+
+    monkeypatch.setattr(simulator, "_execute_blocks", execute_without_changing_guard)
+    with pytest.raises(RuntimeError, match=r"Max iterations \(= 1000\) reached"):
+        simulator._run_sqc(loop)
+
+    assert iterations == 1000

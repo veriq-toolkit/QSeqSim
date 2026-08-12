@@ -38,9 +38,13 @@ Native installation is possible but **less robust** than Docker, mainly due to:
 - architecture mismatches (especially on macOS Apple Silicon).
 
 Supported platforms:
-- Python: **3.12** (tested)
+- Python: **3.12 and 3.13**
 - OS: Linux or macOS recommended
 - Windows: not officially supported; consider WSL2
+
+The package metadata deliberately excludes Python 3.14. Python 3.13.9 was used
+for the CP1 correctness audit, while Python 3.12 remains the Docker and FM/AE
+baseline. No broader version claim is made until CI validates it.
 
 ## 3. What exactly needs to work (core requirement)
 QSeqSim imports CUDD-backed BDDs via:
@@ -53,6 +57,9 @@ So the environment must satisfy:
 
 1. `pip install dd` succeeds, and
 2. `python -c "import dd.cudd"` succeeds.
+
+Importing `qseqsim` performs the same check and fails with installation guidance
+when the extension is absent. There is no automatic `dd.autoref` fallback.
 
 If `dd.cudd` is missing, QSeqSim will not run.
 
@@ -110,7 +117,19 @@ Always run the script (or reinstall) to ensure `dd.cudd` is present.
 ```bash
 python -c "import dd.cudd; print('dd.cudd OK')"
 ```
-### 5.2 Run QSeqSim toy tests
+### 5.2 Install and import QSeqSim
+```bash
+python -m pip install .
+python -c "from qseqsim import QSeqSimulator; print(QSeqSimulator)"
+```
+
+For an editable development checkout:
+
+```bash
+python -m pip install -e '.[test,build]'
+```
+
+### 5.3 Run QSeqSim toy tests
 From repository root:
 
 ```bash
@@ -207,4 +226,3 @@ export QSEQSIM_RNG_SEED=123
 ```
 
 See [ae/README.md](../ae/README.md) for AE-specific reproducibility strategy (frozen circuits + SHA256 manifest).
-

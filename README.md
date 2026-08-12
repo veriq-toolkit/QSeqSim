@@ -29,11 +29,11 @@ docker build -t qseqsim-ae .
 docker run --rm -it qseqsim-ae:latest bash
 ```
 
-### Option B: Native
+### Option B: Native package install
 
 #### Prerequisites
 
-- Python 3.12 (tested)
+- Python 3.12 or 3.13
 - A C/C++ toolchain (required by `dd`)
 
 The `dd` package depends on the CUDD library. The dd authors recommend building CUDD from source; we provide a helper script under `ae/scripts/install_dd_cudd.sh` that follows that approach.
@@ -49,28 +49,38 @@ chmod +x ae/scripts/install_dd_cudd.sh
 ./ae/scripts/install_dd_cudd.sh
 ```
 
-Install Python packages:
+Create an environment and build the canonical CUDD backend:
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+./ae/scripts/install_dd_cudd.sh
 ```
 
-Note: `openqasm3[parser]` is required and already included in `requirements.txt`.
-
-Install `dd` after CUDD is available:
+Install QSeqSim from the repository:
 
 ```bash
-pip install dd
+python -m pip install .
 ```
 
-If `dd` was installed before CUDD, reinstall it after CUDD is available:
+For development, use an editable install with the test dependencies:
 
 ```bash
-pip uninstall -y dd
-pip install dd
+python -m pip install -e '.[test,build]'
 ```
 
-For a fully reproducible environment, use the Docker image described in the Artifact Evaluation section.
+QSeqSim requires `dd.cudd` and validates it during import. It never falls back to
+`dd.autoref`. A plain `dd` installation can succeed without a usable CUDD
+extension, so verify the environment explicitly:
+
+```bash
+python -c "import dd.cudd; import qseqsim; print('QSeqSim + CUDD OK')"
+```
+
+For a fully reproducible environment, use the Docker image described in the
+Artifact Evaluation section. The formal runtime dependency ranges live in
+`pyproject.toml`; `requirements.txt` remains the pinned FM/AE environment.
 
 ## Usage
 
@@ -80,8 +90,7 @@ QSeqSim integrates with Qiskit. You can define your circuit using Qiskit's stand
 
 ```python
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from src.parser import QiskitParser
-from src.simulator import BDDSimulator
+from qseqsim import QSeqSimulator, QiskitParser
 
 # 1. Define Qiskit Circuit
 q = QuantumRegister(2, 'q')
@@ -109,7 +118,7 @@ structure = parser.parse()
 
 # 3. Simulate
 print("Starting simulation...")
-sim = BDDSimulator(structure)
+sim = QSeqSimulator(structure)
 final_clbits = sim.run(mode='sample')
 
 # 4. Output Results
@@ -119,10 +128,12 @@ sim.print_state_vec()
 
 ## Project Structure
 
-- **`src/`**: Core source code.
-  - `parser.py`: Parses Qiskit circuits and OpenQASM 3 into internal IR (CQC, DQC, SQC).
+- **`src/qseqsim/`**: Installable Python package.
+  - `parser.py`: Parses Qiskit circuits through the existing OpenQASM 3 compatibility frontend into internal IR (CQC, DQC, SQC).
   - `kernel.py`: Implements the symbolic BDD kernel (`BDDCombSim`, `BDDSeqSim`) and math operations.
-  - `simulator.py`: Main simulator class `BDDSimulator` orchestrating the execution flow.
+  - `simulator.py`: Existing core simulator class `BDDSimulator`.
+  - `__init__.py`: Stable public exports, including `QSeqSimulator` and `QiskitParser`.
+- **`src/*.py`**: Thin compatibility modules for existing FM research scripts. New library code should import `qseqsim`.
 - **`exp/`**: Experiment scripts and benchmarks.
   - `simulation/`: Contains specific experiments for RQC, Grover, and QRW.
     - `exp_engine.py`: Engine for running experiments and collecting metrics.
@@ -179,6 +190,7 @@ python exp/simulation/exp_engine.py qiskit_grover
 - **User guide (library API, semantics, troubleshooting):** [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
 - **Reuse & extension guide (add benchmarks / add gates / testing):** [docs/REUSE.md](docs/REUSE.md)
 - **Environment & installation notes (Docker/native, CUDD + dd):** [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
+- **Package API and FM import migration:** [docs/PACKAGING.md](docs/PACKAGING.md)
 - **Results format (CSV schemas):** [docs/RESULTS_FORMAT.md](docs/RESULTS_FORMAT.md)
 - **Runnable toy examples:** [examples/](examples/)
 - **Regression / toy tests:** [test/](test/)

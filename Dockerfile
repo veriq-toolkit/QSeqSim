@@ -62,6 +62,10 @@ RUN set -eux; \
 # Verify dd.cudd import in a separate RUN (simpler and avoids heredoc parsing issues)
 RUN python -c "import sys, dd, pkgutil; print('python:', sys.version); print('dd file:', dd.__file__); print('dd.cudd loader:', pkgutil.find_loader('dd.cudd')); import dd.cudd; print('dd.cudd OK')"
 
+# Install the library itself after the canonical backend has been verified.
+RUN python -m pip install --no-deps /workspace && \
+    python -c "from qseqsim import QSeqSimulator; print('qseqsim package OK:', QSeqSimulator)"
+
 RUN chmod +x /workspace/ae/scripts/*.sh
 
 CMD ["bash"]

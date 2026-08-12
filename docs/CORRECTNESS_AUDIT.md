@@ -89,10 +89,12 @@ the newer local version was used as an additional compatibility check.
   final measurement; `BDDSimulator` substitutes `0.5` probabilities.
 - Impact: an implementation/resource failure can silently produce a plausible
   but incorrect result.
-- Resolution: not changed in CP1 because the compatibility impact on artifact
-  workloads needs an explicit API decision. PyPI should fail loudly by default;
-  an approximation mode, if retained, must be explicit and visibly marked.
-- PyPI v0.1.0: must be fixed.
+- Resolution: fixed in CP2.5. Both mid-circuit and final-readout probability
+  paths now raise the public `SymbolicEvaluationError` (a `RuntimeError`
+  subclass), with the original `RecursionError` retained as its cause. No
+  heuristic fallback is provided. A failed run does not collapse state or
+  write a classical result, and the next `run()` starts with a fresh kernel.
+- PyPI v0.1.0: must be fixed; resolved in CP2.5.
 
 ### CP1-04: probability API returns binary64 after Decimal evaluation
 
@@ -107,6 +109,16 @@ the newer local version was used as an additional compatibility check.
   and define precision from circuit scale.
 - PyPI v0.1.0: must be documented; a precise result type is recommended but is
   not required for the already advertised roughly 256-qubit scale.
+
+CP2.5 quantified this boundary. `get_prob()` returns the smallest positive
+binary64 value for the exactly representable Decimal result `2**-1074`
+(approximately `4.9406564584124654e-324`) and returns zero for `2**-1075` due
+to round-to-nearest-even. Likewise, multiplying binary64 branch probabilities
+of `0.5` underflows after 1075 factors. The exact-zero test still distinguishes
+an algebraic zero before conversion, but the public float result cannot convey
+that distinction after underflow. This does not block CP3, which does not need
+to change the numeric core, but it remains a documentation/API decision for the
+v0.1.0 release gate. See `docs/CP2_5_CORRECTNESS_GATE.md`.
 
 ### CP1-05: unsupported control-flow shapes
 

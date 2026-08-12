@@ -45,15 +45,17 @@ python test/test_kernel.py
 The intended “public” workflow is:
 
 1. Write a `qiskit.QuantumCircuit` with classical control (`if_test`, `switch`, `while_loop`, `for_loop`, mid measurements).
-2. Parse it with `src.parser.QiskitParser` into an internal IR (blocks of `CQC/DQC/SQC`).
-3. Execute the IR with `src.simulator.BDDSimulator`, which delegates state updates and probability computations to the BDD kernel (`src.kernel.BDDCombSim`).
+2. Parse it with `qseqsim.QiskitParser` into an internal IR (blocks of `CQC/DQC/SQC`).
+3. Execute the IR with `qseqsim.QSeqSimulator`, which delegates state updates and probability computations to the existing BDD kernel.
+
+The parser still uses the FM implementation's Qiskit → OpenQASM 3 → IR route.
+A direct `QuantumCircuit`/`ControlFlowOp` frontend is not part of CP2.
 
 ### 2.1 End-to-end minimal snippet
 
 ```python
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from src.parser import QiskitParser
-from src.simulator import BDDSimulator
+from qseqsim import QSeqSimulator, QiskitParser
 
 q = QuantumRegister(1, "q")
 c = ClassicalRegister(1, "c")
@@ -65,7 +67,7 @@ qc.measure(q[0], c[0])     # may become "final" or "mid" depending on later cont
 parser = QiskitParser(qc)
 blocks = parser.parse()
 
-sim = BDDSimulator(blocks, precision=32)
+sim = QSeqSimulator(blocks, precision=32)
 clbits = sim.run(mode="sample")
 print("classical store:", clbits)
 sim.print_state_vec()
@@ -79,7 +81,7 @@ This section documents the API that users should rely on for reuse.
 
 ### 3.1 `QiskitParser` (OpenQASM 3 → CQC/DQC/SQC blocks)
 
-**Module:** `src.parser`
+**Public import:** `from qseqsim import QiskitParser`
 
 **Class:** `QiskitParser`
 
@@ -125,7 +127,7 @@ If a gate/angle is unsupported, `parse()` raises a `ValueError` with a descripti
 
 ### 3.2 IR objects: `GateOp`, `CQC`, `DQC`, `SQC`
 
-**Module:** `src.parser`
+**Public import:** `from qseqsim import CQC, DQC, SQC, GateOp`
 
 * `GateOp(name, qubits, params=None, c_targets=None, is_final_measure=False)`
   * `name`: gate name (lowercase, e.g. `"h"`, `"cx"`, `"measure"`)
@@ -138,16 +140,17 @@ If a gate/angle is unsupported, `parse()` raises a `ValueError` with a descripti
 
 ---
 
-### 3.3 `BDDSimulator` (small-step semantics over blocks)
+### 3.3 `QSeqSimulator` (small-step semantics over blocks)
 
-**Module:** `src.simulator`
+**Public import:** `from qseqsim import QSeqSimulator`
 
-**Class:** `BDDSimulator`
+`QSeqSimulator` is a lightweight public subclass of the research implementation's
+`BDDSimulator`; the latter remains exported during migration.
 
 #### Constructor
 
 ```python
-BDDSimulator(parsed_blocks: list, precision: int = 32)
+QSeqSimulator(parsed_blocks: list, precision: int = 32)
 ```
 
 * Initializes a BDD kernel `BDDCombSim(num_qubits, precision)` and sets basis state to |0…0⟩ if supported by the kernel.
@@ -161,6 +164,9 @@ run(mode: str = "sample", presets: dict[int, list[int]] | None = None) -> dict[i
 * `mode="sample"`: measurement outcomes are sampled using exact probabilities from the kernel (`get_prob`) when available.
 * `mode="preset"`: mid-circuit measurements consume preset bits from `presets[c_idx]` (FIFO). If missing for **mid** measurement → error.
 * Returns `clbit_store: dict[int,int]` mapping global classical-bit indices to observed values.
+* If exact symbolic probability evaluation exceeds Python's recursion limit,
+  raises `qseqsim.SymbolicEvaluationError`. QSeqSim does not substitute a
+  uniform or approximate distribution.
 
 #### Inspect final state
 
@@ -237,14 +243,45 @@ See `examples/reachability_rus_pattern.py` for a minimal pattern query.
 * Cause: loop guard never changes to terminate.
 * Fix: ensure the loop body measures and updates the guard bits; or reduce the workload / adjust the program.
 
-### 6.3 Probability recursion warnings
+### 6.3 Symbolic probability evaluation failure
 
-* Warning: `Recursion limit reached ... Assuming uniform ...`
-* Meaning: the kernel probability query hit a recursion/complexity limit; QSeqSim falls back to 0.5 for robustness.
+* Error: `SymbolicEvaluationError: Exact symbolic evaluation failed because the recursion limit was reached ...`
+* Meaning: the exact kernel probability query could not complete within
+  Python's recursion limit. The run stops; no 0.5 fallback or approximate
+  result is returned. Simplify the circuit or symbolic state before retrying.
 
 ### 6.4 Printing state vectors for many qubits
 
 * `print_state_vec()` is intentionally limited (`>20` qubits) to avoid exponential output.
+
+### 6.5 Numeric result limits
+
+The kernel performs integer model counts exactly and evaluates the final
+algebraic probability with 150-digit `Decimal` arithmetic. The current public
+`get_prob()` result and `QSeqSimulator.global_probability`, however, are Python
+binary64 floats. They therefore retain about 16 significant decimal digits and
+can represent positive values down to approximately `4.94e-324`; an exact
+probability of `2**-1075` converts to zero. Long path-probability products have
+the same binary64 underflow boundary. This is a result-API limit, not a switch
+to approximate symbolic model counting.
+
+### 6.6 Control-flow and lowering boundaries
+
+* The general `QSeqSimulator`/`BDDSimulator` IR executor supports the tested
+  nested `if`-inside-`while` and measurement-driven loops.
+* A loop run stops before iteration 1001 and raises
+  `RuntimeError("Max iterations (= 1000) reached in SQC.")` if its guard still
+  holds.
+* The specialized `BDDSeqSim` structural lowering accepts one top-level SQC
+  with a flat CQC body and trailing loop-flag measurements. It deliberately
+  rejects nested `DQC`/`SQC` blocks and mid-body measurements.
+* Measurements that update an SQC loop guard must be the last operation on
+  their measured qubits under the current parser/IR validation.
+
+The CP3 direct-`QuantumCircuit` frontend may remove limitations caused solely
+by the OpenQASM 3 translation route. It does not by itself change the
+specialized `BDDSeqSim` lowering contract, the SQC IR validation, or the
+1000-iteration executor guard; those require separate explicit changes.
 
 ---
 

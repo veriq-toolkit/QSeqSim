@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qseqsim"
+version = "0.1.0.dev0"
+description = "A symbolic simulator for Qiskit while loops using sequential quantum circuits"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "Apache-2.0"
+authors = [
+  { name = "Zihao Li", email = "lizh@ios.ac.cn" },
+]
+maintainers = [
+  { name = "Zihao Li", email = "lizh@ios.ac.cn" },
+]
+keywords = [
+  "binary decision diagrams",
+  "formal methods",
+  "qiskit",
+  "quantum computing",
+  "symbolic simulation",
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+  "dd>=0.6,<0.7",
+  "openqasm3[parser]>=1.0,<1.1",
+  "qiskit>=2.2,<2.5",
+]
+
+[project.optional-dependencies]
+test = [
+  "numpy>=2.0,<3",
+  "pytest>=9,<10",
+]
+build = [
+  "build>=1.2,<2",
+  "twine>=6,<8",
+]
+
+[project.urls]
+Homepage = "https://github.com/Veri-Q/QSeqSim"
+Documentation = "https://github.com/Veri-Q/QSeqSim#readme"
+Issues = "https://github.com/Veri-Q/QSeqSim/issues"
+Repository = "https://github.com/Veri-Q/QSeqSim.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["qseqsim*"]
+namespaces = false
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["src"]
