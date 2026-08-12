@@ -224,6 +224,65 @@ Prints the **normalized** state vector using `global_probability` as a normaliza
 
 For performance, it refuses to print full vectors when `num_qubits > 20`.
 
+### 3.6 `QSeqSimBackend` (Qiskit BackendV2 compatibility)
+
+**Public imports:**
+
+```python
+from qseqsim import QSeqSimBackend, QSeqSimJob
+```
+
+`QSeqSimBackend` is a real `qiskit.providers.BackendV2`. Its `Target` is an
+ideal all-to-all simulator target with no invented durations, errors, pulse
+data, or qubit properties. The target declares the complete-domain native
+operations `x y z h s sdg t tdg cx cz swap ccx cswap mcx measure` and the
+official class-form `IfElseOp`, `WhileLoopOp`, and `ForLoopOp` capabilities.
+Discrete-angle `rx/ry/rz/p` operations remain valid for direct execution but
+are not advertised as general parameterized Target operations. Unsupported
+`switch/break/continue` operations are not declared.
+
+```python
+backend = QSeqSimBackend(num_qubits=32, precision=32)
+job = backend.run(
+    qc,
+    shots=1024,
+    memory=True,
+    seed_simulator=1234,
+)
+result = job.result()
+counts = result.get_counts()
+memory = result.get_memory()
+```
+
+`run()` accepts one `QuantumCircuit` or a non-empty circuit sequence. Runtime
+options are `shots` (default `1024`), `memory` (default `False`), and
+`seed_simulator` (default `None`). Unknown or ill-typed options fail before
+execution. `QSeqSimJob` is a synchronous, already-completed `JobV1`; its result
+is Qiskit's public `Result`, not a QSeqSim-specific dictionary. Raw experiment
+counts and memory use Qiskit's hexadecimal schema, so `get_counts()` and
+`get_memory()` apply the official classical-register formatting, including
+multiple-register ordering.
+
+The execution layers are:
+
+```text
+QuantumCircuit
+  -> QuantumCircuitParser (direct; no qasm3.dumps)
+  -> one symbolic branch-distribution execution per circuit
+  -> complete integer classical outcome -> binary64 probability map
+  -> seeded compatibility-layer shot sampling
+  -> QSeqSimJob / qiskit.result.Result
+```
+
+At each measurement the distribution executor clones the canonical CUDD state,
+collapses each nonzero branch, continues that branch through `DQC`/`SQC`
+control flow, and aggregates equal final classical stores. This preserves joint
+readout correlations such as Bell `00/11`. Increasing `shots` does not increase
+the number of symbolic circuit executions. The existing 1000-iteration guard
+still applies to every reachable loop branch. Symbolic and unsupported-feature
+failures propagate directly from `backend.run()` and do not produce a success
+result.
+
 ---
 
 ## 4. Measurement semantics: mid vs final (important)

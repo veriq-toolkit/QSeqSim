@@ -1,9 +1,18 @@
 import random
 import math
+from dataclasses import dataclass
 from typing import List, Dict, Optional, Any
 from .exceptions import SymbolicEvaluationError
 from .kernel import BDDCombSim
 from .parser import CQC, DQC, SQC, GateOp
+
+
+@dataclass
+class _DistributionState:
+    kernel: BDDCombSim
+    clbits: Dict[int, int]
+    probability: float
+    break_requested: bool = False
 
 class BDDSimulator:
     def __init__(self, parsed_blocks: list, precision: int = 32):
@@ -50,6 +59,179 @@ class BDDSimulator:
             print(f"[Sim] Simulation Failed: {e}")
             raise e
         return self.clbit_store
+
+    def run_distribution(self, num_clbits: Optional[int] = None) -> Dict[int, float]:
+        """Compute the complete final classical-outcome distribution once.
+
+        Unlike :meth:`run`, this method does not choose a single random path.
+        It branches the symbolic BDD state at every measurement, continues
+        each branch through dynamic control flow, and aggregates equal final
+        classical stores.  It is the native source used by the BackendV2
+        compatibility layer before shot sampling.
+        """
+        if num_clbits is not None:
+            if not isinstance(num_clbits, int) or isinstance(num_clbits, bool) or num_clbits < 0:
+                raise ValueError("num_clbits must be a non-negative integer or None.")
+
+        kernel = BDDCombSim(self.num_qubits, self.precision)
+        if hasattr(kernel, 'init_basis_state'):
+            kernel.init_basis_state(0)
+        states = self._distribution_execute_blocks(
+            [_DistributionState(kernel=kernel, clbits={}, probability=1.0)], self.blocks
+        )
+
+        outcomes: Dict[int, float] = {}
+        for state in states:
+            if state.break_requested:
+                raise RuntimeError("Encountered 'break' outside a sequential loop.")
+            outcome = 0
+            for index, value in state.clbits.items():
+                if num_clbits is not None and index >= num_clbits:
+                    raise ValueError(f"Classical bit index {index} exceeds result width {num_clbits}.")
+                outcome |= int(value) << index
+            outcomes[outcome] = outcomes.get(outcome, 0.0) + state.probability
+
+        total = sum(outcomes.values())
+        if total <= 0.0:
+            raise ValueError("Symbolic execution produced an empty classical distribution.")
+        return {outcome: probability / total for outcome, probability in outcomes.items()}
+
+    def _distribution_execute_blocks(
+        self, states: List[_DistributionState], blocks: list
+    ) -> List[_DistributionState]:
+        current = states
+        for block in blocks:
+            next_states: List[_DistributionState] = []
+            for state in current:
+                if state.break_requested:
+                    next_states.append(state)
+                elif isinstance(block, CQC):
+                    next_states.extend(self._distribution_run_cqc(state, block))
+                elif isinstance(block, DQC):
+                    value = self._distribution_read_clbits(state, block.target_clbits)
+                    selected = block.cases.get(value, block.default_block)
+                    next_states.extend(self._distribution_execute_blocks([state], selected))
+                elif isinstance(block, SQC):
+                    next_states.extend(self._distribution_run_sqc(state, block))
+                else:
+                    raise TypeError(f"Unknown QSeqSim block type: {type(block).__name__}.")
+            current = next_states
+        return current
+
+    def _distribution_run_cqc(
+        self, state: _DistributionState, cqc: CQC
+    ) -> List[_DistributionState]:
+        states = [state]
+        for op in cqc.ops:
+            next_states: List[_DistributionState] = []
+            for branch in states:
+                if branch.break_requested:
+                    next_states.append(branch)
+                elif op.name == 'break':
+                    branch.break_requested = True
+                    next_states.append(branch)
+                elif op.name == 'measure':
+                    next_states.extend(self._distribution_measure(branch, op))
+                else:
+                    self._distribution_apply_gate(branch, op)
+                    next_states.append(branch)
+            states = next_states
+        return states
+
+    def _distribution_run_sqc(
+        self, state: _DistributionState, sqc: SQC
+    ) -> List[_DistributionState]:
+        active = [state]
+        completed: List[_DistributionState] = []
+        iteration = 0
+        max_iter = 1000
+        while active:
+            body_inputs: List[_DistributionState] = []
+            for branch in active:
+                value = self._distribution_read_clbits(
+                    branch, sqc.loop_condition['indices']
+                )
+                if value == sqc.loop_condition['value']:
+                    body_inputs.append(branch)
+                else:
+                    completed.append(branch)
+            if not body_inputs:
+                break
+            if iteration >= max_iter:
+                raise RuntimeError(f"Max iterations (= {max_iter}) reached in SQC.")
+            body_outputs = self._distribution_execute_blocks(body_inputs, sqc.body_block)
+            active = []
+            for branch in body_outputs:
+                if branch.break_requested:
+                    branch.break_requested = False
+                    completed.append(branch)
+                else:
+                    active.append(branch)
+            iteration += 1
+        return completed
+
+    def _distribution_measure(
+        self, state: _DistributionState, op: GateOp
+    ) -> List[_DistributionState]:
+        states = [state]
+        for q_idx, c_idx in zip(op.qubits, op.c_targets):
+            branches: List[_DistributionState] = []
+            for parent in states:
+                try:
+                    joint = [
+                        parent.kernel.get_prob([q_idx], [0]),
+                        parent.kernel.get_prob([q_idx], [1]),
+                    ]
+                except RecursionError as exc:
+                    raise SymbolicEvaluationError(
+                        "Exact symbolic evaluation failed because the recursion limit "
+                        f"was reached while computing distribution probabilities for q[{q_idx}]."
+                    ) from exc
+                norm = joint[0] + joint[1]
+                if norm <= 0.0:
+                    raise ValueError("State has zero probability during distribution measurement.")
+                for measured_value, joint_probability in enumerate(joint):
+                    if joint_probability <= 0.0:
+                        continue
+                    child_kernel = parent.kernel.clone()
+                    child_kernel.mid_measure([q_idx], [measured_value])
+                    child_clbits = dict(parent.clbits)
+                    child_clbits[c_idx] = measured_value
+                    branches.append(
+                        _DistributionState(
+                            kernel=child_kernel,
+                            clbits=child_clbits,
+                            probability=parent.probability * (joint_probability / norm),
+                        )
+                    )
+            states = branches
+        return states
+
+    def _distribution_apply_gate(self, state: _DistributionState, op: GateOp) -> None:
+        if op.name == 'mcx':
+            if not op.qubits:
+                raise ValueError("mcx requires at least one target qubit.")
+            state.kernel.multi_controlled_X(op.qubits[:-1], op.qubits[-1])
+            return
+        method_name = self.GATE_METHOD_MAP.get(op.name)
+        if not method_name:
+            raise ValueError(f"Unknown gate '{op.name}'")
+        method = getattr(state.kernel, method_name, None)
+        if method is not None:
+            method(*op.qubits)
+            return
+        apply_gate = getattr(state.kernel, 'apply_gate', None)
+        if apply_gate is not None:
+            apply_gate(method_name, op.qubits)
+            return
+        raise AttributeError(f"Kernel object has no method '{method_name}'")
+
+    @staticmethod
+    def _distribution_read_clbits(state: _DistributionState, indices: List[int]) -> int:
+        value = 0
+        for offset, index in enumerate(indices):
+            value |= state.clbits.get(index, 0) << offset
+        return value
 
     def print_state_vec(self):
         """

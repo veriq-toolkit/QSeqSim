@@ -8,6 +8,7 @@ from ._backend import cudd as _cudd
 from .exceptions import SymbolicEvaluationError, UnsupportedQiskitFeatureError
 from .parser import CQC, DQC, SQC, GateOp, OpenQASM3Parser, QiskitParser
 from .qiskit_frontend import QiskitCircuitFrontend, QuantumCircuitParser
+from .qiskit_backend import QSeqSimBackend, QSeqSimJob
 from .simulator import BDDSimulator
 
 __version__ = "0.1.0.dev0"
@@ -78,6 +79,8 @@ __all__ = [
     "GateOp",
     "OpenQASM3Parser",
     "QSeqSimulator",
+    "QSeqSimBackend",
+    "QSeqSimJob",
     "QiskitParser",
     "QiskitCircuitFrontend",
     "QuantumCircuitParser",

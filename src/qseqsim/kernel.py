@@ -28,6 +28,23 @@ class BDDCombSim:
             self.Fd.append(self.BDD.false)
         self.k = 0
 
+    def clone(self):
+        """Return an independent symbolic state in a new CUDD manager.
+
+        CUDD managers cannot be deep-copied by Python.  ``BDD.copy`` is the
+        supported cross-manager operation and preserves the represented
+        Boolean functions without converting them through text or autoref.
+        """
+        clone = type(self)(self.n, self.r)
+        for attribute in ("Fa", "Fb", "Fc", "Fd"):
+            setattr(
+                clone,
+                attribute,
+                [self.BDD.copy(function, clone.BDD) for function in getattr(self, attribute)],
+            )
+        clone.k = self.k
+        return clone
+
     def init_basis_state(self, basis):
         assert basis < (1 << self.n), "Basis state is out of range!"
         tmp = dict()

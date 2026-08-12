@@ -126,6 +126,38 @@ continue to use `QSeqSimulator(QiskitParser(qc).parse())`; that compatibility
 path still serializes through OpenQASM 3. Raw interchange text can be parsed
 with `OpenQASM3Parser(qasm_str=text)`.
 
+### Qiskit BackendV2 compatibility
+
+Use `QSeqSimulator` for native symbolic execution, state/path inspection, and
+preset measurements. Use `QSeqSimBackend` when Qiskit-compatible jobs,
+shot-counts, and per-shot memory are required:
+
+```python
+from qiskit import QuantumCircuit, transpile
+from qseqsim import QSeqSimBackend
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure([0, 1], [0, 1])
+
+backend = QSeqSimBackend(num_qubits=2)
+compiled = transpile(qc, backend)
+result = backend.run(
+    compiled, shots=1024, memory=True, seed_simulator=7
+).result()
+print(result.get_counts())
+print(result.get_memory()[:5])
+```
+
+The backend directly uses the CP3 `QuantumCircuit` frontend. For each circuit
+it performs one symbolic distribution execution, branching and aggregating all
+classical outcomes while preserving measurement correlations. The compatibility
+layer then samples `shots` from that distribution; it never reruns the symbolic
+simulator once per shot. `UnsupportedQiskitFeatureError` and
+`SymbolicEvaluationError` propagate from `run()` rather than becoming a
+successful `Result`.
+
 | Qiskit feature | Direct frontend |
 | --- | --- |
 | Supported Clifford+T gates and measurements | Supported |
@@ -143,9 +175,10 @@ See [the user guide](docs/USER_GUIDE.md) for the complete gate and control-flow 
 - **`src/qseqsim/`**: Installable Python package.
   - `parser.py`: Parses Qiskit circuits through the existing OpenQASM 3 compatibility frontend into internal IR (CQC, DQC, SQC).
   - `qiskit_frontend.py`: Directly maps `QuantumCircuit.data` and control-flow blocks into global-indexed IR.
+  - `qiskit_backend.py`: BackendV2 `Target`, synchronous JobV1, standard Result, and distribution-to-shots adapter.
   - `kernel.py`: Implements the symbolic BDD kernel (`BDDCombSim`, `BDDSeqSim`) and math operations.
   - `simulator.py`: Existing core simulator class `BDDSimulator`.
-  - `__init__.py`: Stable public exports, including `QSeqSimulator`, `QuantumCircuitParser`, `OpenQASM3Parser`, and compatibility name `QiskitParser`.
+  - `__init__.py`: Stable public exports, including `QSeqSimulator`, `QSeqSimBackend`, `QuantumCircuitParser`, `OpenQASM3Parser`, and compatibility name `QiskitParser`.
 - **`src/*.py`**: Thin compatibility modules for existing FM research scripts. New library code should import `qseqsim`.
 - **`exp/`**: Experiment scripts and benchmarks.
   - `simulation/`: Contains specific experiments for RQC, Grover, and QRW.
