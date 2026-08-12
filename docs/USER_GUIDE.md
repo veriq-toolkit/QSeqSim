@@ -283,6 +283,67 @@ still applies to every reachable loop branch. Symbolic and unsupported-feature
 failures propagate directly from `backend.run()` and do not produce a success
 result.
 
+### 3.7 `QSeqSamplerV2` (Qiskit Primitive V2)
+
+**Public imports:**
+
+```python
+from qseqsim import QSeqSamplerV2, QSeqPrimitiveJob
+# QSeqSampler is an equivalent V2 compatibility alias.
+```
+
+Use the sampler when an algorithm or workflow consumes Qiskit's Primitive V2
+PUB and result model:
+
+```python
+from math import pi
+from qiskit import QuantumCircuit
+from qiskit.circuit import Parameter
+from qseqsim import QSeqSamplerV2
+
+theta = Parameter("theta")
+qc = QuantumCircuit(1, 1)
+qc.rz(theta, 0)
+qc.measure(0, 0)
+
+sampler = QSeqSamplerV2(default_shots=1024, seed=7, precision=32)
+job = sampler.run([(qc, [[0.0], [pi / 4]], 256)])
+pub_result = job.result()[0]
+print(pub_result.data.c.get_counts(0))
+print(pub_result.data.c.get_counts(1))
+```
+
+`run()` accepts multiple PUBs and relies on Qiskit 2.4.2
+`SamplerPub.coerce()` for bare circuits and `(circuit, parameter_values[, shots])`
+tuples. PUB shots have highest precedence, then `run(..., shots=...)`, then
+`default_shots`. `shots=None` means the default shot count; it does not request
+an exact-probability result.
+
+Each bound circuit invokes the complete symbolic distribution executor once,
+then samples all requested shots from that distribution. One seeded RNG stream
+advances continuously across PUBs and parameter bindings in a job. Results are
+Qiskit's `PrimitiveResult` containing one `SamplerPubResult` per PUB. Each
+classical register is a named `DataBin` field containing a `BitArray`, so use
+`pub_result.data.<register>.get_counts()` or `get_bitstrings()`.
+
+Register fields follow `circuit.cregs` order. Within each field, register bit 0
+is least significant. BackendV2's legacy `get_counts()` prints register groups
+in reverse display order with spaces, so separate primitive fields should be
+compared semantically rather than by concatenating the displayed strings.
+
+The three public execution layers are therefore:
+
+| API | Intended use | Result model |
+| --- | --- | --- |
+| `QSeqSimulator` | Native symbolic/exact-style state and path workflows | Native classical store/state inspection |
+| `QSeqSimBackend` | BackendV2 transpilation, jobs, counts, and memory | `JobV1` / `Result` |
+| `QSeqSamplerV2` | Qiskit Primitive V2 PUB workflows | `BasePrimitiveJob` / `PrimitiveResult` / register `BitArray` fields |
+
+The sampler is native: it is not `BackendSamplerV2(QSeqSimBackend())`, and it
+never reruns the simulator once per shot. See
+[the CP5 gate](CP5_SAMPLERV2.md) for detailed binding, RNG, ordering, and
+failure semantics.
+
 ---
 
 ## 4. Measurement semantics: mid vs final (important)

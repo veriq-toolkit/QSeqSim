@@ -30,7 +30,7 @@ from qiskit.providers import BackendV2, JobStatus, JobV1, Options
 from qiskit.result import Result
 from qiskit.transpiler import Target
 
-from .simulator import BDDSimulator
+from ._sampling import run_symbolic_distribution, sample_distribution
 
 
 class QSeqSimJob(JobV1):
@@ -187,16 +187,8 @@ class QSeqSimBackend(BackendV2):
     ) -> dict:
         # Constructing directly from the CP3 parser is deliberate: there is no
         # OpenQASM serialization or reparsing in the BackendV2 path.
-        simulator = BDDSimulator(
-            self._parse_direct(circuit), precision=self._precision
-        )
-        distribution = simulator.run_distribution(num_clbits=circuit.num_clbits)
-        outcomes = list(distribution)
-        sampled = rng.choices(
-            outcomes,
-            weights=[distribution[outcome] for outcome in outcomes],
-            k=int(shots),
-        )
+        distribution = run_symbolic_distribution(circuit, precision=self._precision)
+        sampled = sample_distribution(distribution, shots=int(shots), rng=rng)
         counts = {hex(outcome): count for outcome, count in Counter(sampled).items()}
         data = {"counts": counts}
         if memory:
@@ -213,13 +205,5 @@ class QSeqSimBackend(BackendV2):
                 "creg_sizes": [[register.name, register.size] for register in circuit.cregs],
             },
         }
-
-    @staticmethod
-    def _parse_direct(circuit: QuantumCircuit) -> list:
-        # Local import avoids an import cycle through qseqsim.__init__.
-        from .qiskit_frontend import QuantumCircuitParser
-
-        return QuantumCircuitParser(circuit).parse()
-
 
 __all__ = ["QSeqSimBackend", "QSeqSimJob"]

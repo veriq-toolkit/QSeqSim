@@ -158,6 +158,42 @@ simulator once per shot. `UnsupportedQiskitFeatureError` and
 `SymbolicEvaluationError` propagate from `run()` rather than becoming a
 successful `Result`.
 
+### Native Qiskit SamplerV2
+
+Use `QSeqSamplerV2` for Qiskit Primitive V2 PUBs and register-separated
+`BitArray` results:
+
+```python
+from qiskit import QuantumCircuit
+from qseqsim import QSeqSamplerV2
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure([0, 1], [0, 1])
+
+sampler = QSeqSamplerV2(default_shots=1024, seed=7)
+pub_result = sampler.run([qc]).result()[0]
+print(pub_result.data.c.get_counts())
+```
+
+The three API layers serve different Qiskit integration levels:
+
+| API | Role |
+| --- | --- |
+| `QSeqSimulator` | Native symbolic/exact-style state and path interface |
+| `QSeqSimBackend` | BackendV2 compatibility (`JobV1`, counts, memory) |
+| `QSeqSamplerV2` | Native Primitive V2 interface (PUBs, `PrimitiveResult`, per-register `BitArray`) |
+
+`QSeqSamplerV2` uses Qiskit's official `SamplerPub.coerce()` and parameter
+binding containers. Each bound circuit is executed once to obtain the complete
+symbolic classical distribution, after which the requested shots are drawn
+from that distribution. It does not invoke BackendV2, serialize OpenQASM, or
+run the simulator once per shot. PUB shots override run-level shots, which
+override `default_shots`; `shots=None` selects the default rather than exact
+probabilities. A single seeded RNG stream advances across all PUBs and bindings
+in deterministic order.
+
 | Qiskit feature | Direct frontend |
 | --- | --- |
 | Supported Clifford+T gates and measurements | Supported |
@@ -176,6 +212,7 @@ See [the user guide](docs/USER_GUIDE.md) for the complete gate and control-flow 
   - `parser.py`: Parses Qiskit circuits through the existing OpenQASM 3 compatibility frontend into internal IR (CQC, DQC, SQC).
   - `qiskit_frontend.py`: Directly maps `QuantumCircuit.data` and control-flow blocks into global-indexed IR.
   - `qiskit_backend.py`: BackendV2 `Target`, synchronous JobV1, standard Result, and distribution-to-shots adapter.
+  - `primitives.py`: Native SamplerV2, PrimitiveJob, PUB binding, and register-separated BitArray results.
   - `kernel.py`: Implements the symbolic BDD kernel (`BDDCombSim`, `BDDSeqSim`) and math operations.
   - `simulator.py`: Existing core simulator class `BDDSimulator`.
   - `__init__.py`: Stable public exports, including `QSeqSimulator`, `QSeqSimBackend`, `QuantumCircuitParser`, `OpenQASM3Parser`, and compatibility name `QiskitParser`.

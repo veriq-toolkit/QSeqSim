@@ -9,6 +9,7 @@ from .exceptions import SymbolicEvaluationError, UnsupportedQiskitFeatureError
 from .parser import CQC, DQC, SQC, GateOp, OpenQASM3Parser, QiskitParser
 from .qiskit_frontend import QiskitCircuitFrontend, QuantumCircuitParser
 from .qiskit_backend import QSeqSimBackend, QSeqSimJob
+from .primitives import QSeqPrimitiveJob, QSeqSampler, QSeqSamplerV2
 from .simulator import BDDSimulator
 
 __version__ = "0.1.0.dev0"
@@ -81,6 +82,9 @@ __all__ = [
     "QSeqSimulator",
     "QSeqSimBackend",
     "QSeqSimJob",
+    "QSeqPrimitiveJob",
+    "QSeqSampler",
+    "QSeqSamplerV2",
     "QiskitParser",
     "QiskitCircuitFrontend",
     "QuantumCircuitParser",
