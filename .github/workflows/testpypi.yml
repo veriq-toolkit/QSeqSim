@@ -1,0 +1,74 @@
+name: Manually stage a build on TestPyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to build
+        required: true
+        default: main
+        type: string
+      confirm-upload:
+        description: Confirm that this run may upload to TestPyPI
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-check:
+    if: inputs.confirm-upload == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install QSeqSim and release tooling with CUDD
+        env:
+          DD_FETCH: "1"
+          DD_CUDD: "1"
+          DD_CUDD_ZDD: "1"
+        run: |
+          python -m pip install --upgrade pip setuptools wheel build twine
+          ./ae/scripts/install_dd_cudd.sh
+          python -m pip install -e '.[test]'
+      - name: Check source versions and tests
+        run: |
+          python scripts/check_release_version.py
+          python -m pytest -q
+      - name: Build and check distributions
+        run: |
+          python -m build --sdist --wheel
+          python -m twine check dist/*
+      - name: Upload distributions for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: testpypi-python-package-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: build-test-check
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/qseqsim
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: testpypi-python-package-distributions
+          path: dist/
+      - name: Publish with TestPyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/

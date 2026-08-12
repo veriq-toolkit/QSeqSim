@@ -9,6 +9,7 @@ description = "Structure-aware symbolic simulation of dynamic and sequential Qis
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [
   { name = "Zihao Li", email = "lizh@ios.ac.cn" },
   { name = "Ji Guan" },
@@ -27,7 +28,6 @@ keywords = [
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: MacOS",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3 :: Only",
@@ -38,7 +38,7 @@ classifiers = [
 dependencies = [
   "dd>=0.6,<0.7",
   "openqasm3[parser]>=1.0,<1.1",
-  "qiskit>=2.2,<2.5",
+  "qiskit>=2.4,<2.5",
 ]
 
 [project.optional-dependencies]
@@ -49,6 +49,10 @@ test = [
 build = [
   "build>=1.2,<2",
   "twine>=6,<8",
+]
+benchmark = [
+  "qiskit==2.4.2",
+  "qiskit-aer==0.17.2",
 ]
 
 [project.urls]
@@ -66,7 +70,6 @@ namespaces = false
 
 [tool.setuptools]
 include-package-data = false
-license-files = ["LICENSE"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]

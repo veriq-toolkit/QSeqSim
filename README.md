@@ -64,6 +64,11 @@ pre-conversion algebra use stronger internal representations. See
 - Demonstrated large structured QRW cases in the FM artifact. These results are
   workload-specific, not a general simulator performance claim.
 
+In the current ecosystem benchmark, QSeqSim and Aer agreed on all small-scale
+correctness checks, while Aer was faster and used less process memory on every
+selected small-to-medium case. See the [methodology and complete cautious
+interpretation](docs/ECOSYSTEM_BENCHMARK.md).
+
 ## Installation
 
 ### Option A: Docker (recommended)

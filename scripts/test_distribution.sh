@@ -18,3 +18,4 @@ python -m venv --system-site-packages "${tmp_dir}/venv"
 cd "${tmp_dir}"
 "${tmp_dir}/venv/bin/python" -c \
   "from qseqsim import QSeqSimulator; import dd.cudd; assert 'src' not in QSeqSimulator.__module__; print(QSeqSimulator)"
+"${tmp_dir}/venv/bin/python" "${repo_root}/scripts/release_smoke.py"

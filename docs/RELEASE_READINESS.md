@@ -29,7 +29,10 @@ then create the matching annotated `v0.1.0` tag. There is no `0.1.0` or
 ## Dependency contract
 
 - Python: `>=3.12,<3.14`; CI covers 3.12 and 3.13.
-- Qiskit: `>=2.2,<2.5`; Qiskit 2.4.x is the release-gate target.
+- Qiskit: `>=2.4,<2.5`; Qiskit 2.4.x is the release-gate target. Qiskit
+  2.2.3 and 2.3.1 were tested and excluded because their public circuit
+  parameter model exposes a `for_loop` index as a PUB parameter, causing
+  `SamplerPub.coerce()` to reject a supported parameter-free loop.
 - `dd`: `>=0.6,<0.7`, with `dd.cudd` required at import time.
 - OpenQASM 3: `>=1.0,<1.1`, used as a secondary compatibility frontend.
 

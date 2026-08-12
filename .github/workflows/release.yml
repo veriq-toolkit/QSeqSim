@@ -1,0 +1,66 @@
+name: Publish final release to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-check:
+    if: github.event.release.draft == false && github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install QSeqSim and release tooling with CUDD
+        env:
+          DD_FETCH: "1"
+          DD_CUDD: "1"
+          DD_CUDD_ZDD: "1"
+        run: |
+          python -m pip install --upgrade pip setuptools wheel build twine
+          ./ae/scripts/install_dd_cudd.sh
+          python -m pip install -e '.[test]'
+      - name: Require an exact final tag matching all source versions
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: python scripts/check_release_version.py "$RELEASE_TAG"
+      - name: Run the complete test suite
+        run: python -m pytest -q
+      - name: Build and check wheel and source distribution
+        run: |
+          python -m build --sdist --wheel
+          python -m twine check dist/*
+      - name: Smoke-test the freshly built wheel
+        run: ./scripts/test_distribution.sh
+      - name: Upload distributions for human inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: build-test-check
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/qseqsim
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download checked distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish with PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1

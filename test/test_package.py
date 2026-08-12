@@ -45,4 +45,4 @@ def test_installed_distribution_metadata_when_available():
     assert set(metadata["Requires-Python"].split(",")) == {">=3.12", "<3.14"}
     requirements = metadata.get_all("Requires-Dist") or []
     assert any(requirement.startswith("dd<0.7,>=0.6") for requirement in requirements)
-    assert any(requirement.startswith("qiskit<2.5,>=2.2") for requirement in requirements)
+    assert any(requirement.startswith("qiskit<2.5,>=2.4") for requirement in requirements)

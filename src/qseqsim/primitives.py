@@ -17,10 +17,10 @@ from qiskit.primitives.containers import (
     BitArray,
     DataBin,
     PrimitiveResult,
-    SamplerPub,
     SamplerPubLike,
     SamplerPubResult,
 )
+from qiskit.primitives.containers.sampler_pub import SamplerPub
 from qiskit.providers import JobStatus
 
 from ._sampling import run_symbolic_distribution, sample_distribution

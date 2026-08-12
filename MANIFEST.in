@@ -1,0 +1,14 @@
+include CHANGELOG.md
+include CITATION.cff
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+include LICENSE
+include README.md
+recursive-include docs *.md
+recursive-include examples *.py
+include benchmarks/ecosystem_benchmark.py
+include benchmarks/results/ecosystem_benchmark_2026-08-12.csv
+include benchmarks/results/ecosystem_benchmark_2026-08-12.json
+include scripts/check_release_version.py
+include scripts/release_smoke.py
+include scripts/test_distribution.sh

@@ -54,9 +54,11 @@ top-level runs have regression coverage.
    ordering, with automatic reordering still enabled;
 9. exact model counting above the binary64 exact-integer limit.
 
-The repository test suite passes with CUDD-backed `dd==0.6.0`, Qiskit 2.4.1,
-NumPy 2.4.2, and Python 3.13.9. The pinned baseline Qiskit version is 2.2.3;
-the newer local version was used as an additional compatibility check.
+The repository test suite passes with CUDD-backed `dd==0.6.0`, Qiskit 2.4.x,
+and Python 3.12 and 3.13. Qiskit 2.2.3 and 2.3.1 were also tested during the
+release sweep but are outside the declared range because their public
+`for_loop` parameter semantics are incompatible with parameter-free SamplerV2
+PUB coercion.
 
 ## Findings and release disposition
 
