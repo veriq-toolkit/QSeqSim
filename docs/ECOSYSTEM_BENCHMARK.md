@@ -1,114 +1,226 @@
 # Qiskit ecosystem benchmark
 
-This benchmark positions QSeqSim relative to Qiskit Aer without treating either
-simulator as a universal replacement for the other. It was run on 2026-08-12
-with the checked-in `benchmarks/ecosystem_benchmark.py` harness.
+QSeqSim complements, rather than replaces, Aer. Aer remains the stronger
+default for small and general numerical simulation. QSeqSim targets structured
+dynamic and sequential workloads whose requested symbolic output remains
+compact. The positive result below is deliberately presented first, followed
+immediately by its output-semantics and platform boundaries.
 
-## Environment and configuration
+## Q4-A — fair projected-backend comparison
 
-| Component | Value |
+Q4-A gives Aer statevector, Aer matrix-product state (MPS), and
+`QSeqSimBackend` the same source `QuantumCircuit` for each case. Both QRW and
+Grover use the same two finite structured iterations, measure only `q[0]` into
+one classical bit, request 1,024 shots with seed 20260812, and time the same
+region: `backend.run(...).result()`. Circuit construction and optimization-level
+0 transpilation for each backend target are recorded but excluded. Each point
+runs in three fresh workers with the same 120-second per-worker cutoff.
+
+The one-bit projection is not a hidden engine-specific simplification: it is a
+legitimate projected-observable/backend task, and all three engines receive the
+same requested output. Its importance is part of the result. Q3 later provides
+the full-register negative control: expanding the requested symbolic output can
+increase QSeqSim's branch count and reverse the performance conclusion.
+
+At q12, 4,096-shot correctness bridges passed for both families. Aer MPS and
+statevector produced identical seeded counts; QSeqSim's TVD from statevector
+was 0.00488 for QRW and 0.00146 for Grover. All methods had support `0/1`.
+
+### Backend latency
+
+The tables report median seconds only for completed workers. `TO` is a
+120-second timeout, `—` means not run after that method's earlier boundary,
+and `mixed` is not a stable baseline.
+
+| QRW qubits | Aer statevector | Aer MPS | QSeqSim |
+| ---: | ---: | ---: | ---: |
+| 12 | 0.0571 | 24.5641 | 0.1782 |
+| 14 | 0.2485 | 35.3508 | 0.2471 |
+| 16 | 1.6333 | 58.9623 | 0.3425 |
+| 18 | 7.3757 | 91.9451 | 0.3175 |
+| 20 | 40.2905 | mixed: 2/3, 115.9696 median | 0.2678 |
+| 24 | TO | — | 0.3400 |
+| 32 | — | — | 0.5957 |
+| 64 | — | — | 1.7534 |
+| 128 | — | — | 7.7620 |
+| 256 | — | — | 44.5866 |
+| 512 | — | — | TO |
+
+| Grover qubits | Aer statevector | Aer MPS | QSeqSim |
+| ---: | ---: | ---: | ---: |
+| 12 | 0.3282 | 14.0183 | 0.3099 |
+| 14 | 3.1560 | 22.0089 | 0.3177 |
+| 16 | 11.3096 | 25.4989 | 0.3726 |
+| 18 | 54.0111 | 43.8055 | 0.3707 |
+| 20 | TO | mixed: 1 success, 115.6566 | 0.4186 |
+| 24 | — | — | 0.4888 |
+| 32 | — | — | 0.6839 |
+| 64 | — | — | 2.7160 |
+| 128 | — | — | 16.3595 |
+| 256 | — | — | TO |
+
+The main latency ratios use only points where both QSeqSim and at least one Aer
+method completed all 3/3 workers. They compare medians from the same machine,
+case, shots, and timed boundary, using the fastest stable Aer method at that
+point. QRW improves from 4.77× at q16 to 23.23× at q18 and 150.45× at q20;
+Grover improves from 9.93× at q14 to 30.35× at q16 and 118.16× at q18. The q20
+MPS mixed points are shown for completeness but are excluded from these ratios.
+The observed crossover region is approximately q14–q16 for these selected
+one-bit workloads, not for large circuits or projections in general.
+
+### Stable-width boundary under the cutoff
+
+“Stable” means all 3/3 fresh workers completed. A 2/3 or 1-success point is
+mixed evidence and never promoted to the stable boundary.
+
+| Family | Aer statevector | Aer MPS | QSeqSim |
+| --- | --- | --- | --- |
+| QRW | stable through q20; q24 TO | stable through q18; q20 mixed 2/3 | stable through q256; q512 TO |
+| Grover | stable through q18; q20 TO | stable through q18; q20 mixed 1 success | stable through q128; q256 TO |
+
+Thus QSeqSim reached a larger stable tested width only under this 120-second
+per-worker cutoff and for these projected two-iteration workloads. Later widths
+after a method's boundary are `not_run_after_boundary`, not “unsupported.”
+
+Selected memory figures are absolute isolated-worker peak RSS: QRW q20 was
+790.8 MiB for statevector and 148.6 MiB for QSeqSim; Grover q18 was
+250.4/139.7/140.3 MiB for statevector/MPS/QSeqSim. QSeqSim was 138.2 MiB at
+QRW q256 and 153.2 MiB at Grover q128. These totals include imports, runtime,
+and allocators; they are not pure statevector, MPS, or BDD-state allocations.
+
+### Symbolic build and sampling decomposition
+
+All successful Q4-A QSeqSim points had exactly two output branches. Sampling
+was negligible relative to constructing the complete projected distribution:
+
+| Family / width | Build (s) | Sampling (s) | Total (s) | Outcomes |
+| --- | ---: | ---: | ---: | ---: |
+| QRW q16 | 0.3414 | 0.000208 | 0.3425 | 2 |
+| QRW q128 | 7.7616 | 0.000101 | 7.7620 | 2 |
+| QRW q256 | 44.5857 | 0.000180 | 44.5866 | 2 |
+| Grover q16 | 0.3723 | 0.000075 | 0.3726 | 2 |
+| Grover q128 | 16.3591 | 0.000070 | 16.3595 | 2 |
+
+This is why output semantics cannot be separated from the performance claim:
+Q4 constructs a two-outcome `q[0]` marginal, while Q3's full-register Grover
+distribution reaches 2,048 branches at only q12.
+
+## Q4-B — conditioned-path capability
+
+Q4-B parses an actual Qiskit measurement-driven `while` circuit and uses the
+existing BDDSeqSim lowering to retain sequential symbolic state along the fixed
+measurement path `[0, ..., 0, 1]`.
+
+| Family | Qubits | Path iterations | Total (s) | Peak RSS (MiB) | Probability |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| QRW | 16 | 1 | 0.0326 | 146.6 | 0.5 |
+| QRW | 128 | 1 | 0.3400 | 135.6 | 0.5 |
+| QRW | 1,024 | 1 | 99.1037 | 273.8 | 0.5 |
+| QRW | 16 | 3 | 0.0476 | 146.9 | 0.125 |
+| QRW | 128 | 3 | 1.0408 | 160.2 | 0.125 |
+| Grover | 16 | 1 | 0.0527 | 146.4 | 0.5 |
+| Grover | 128 | 1 | 0.3238 | 150.9 | 0.5 |
+| Grover | 256 | 1 | 0.7728 | 156.3 | 0.5 |
+
+The 1,024-qubit row proves that one conditioned symbolic path actually ran; it
+is not merely circuit construction or parsing. It is capability evidence only:
+it is neither a full distribution nor a sampled `Backend.run`, and no Aer
+speedup is calculated because the output objects differ. Dense-state storage
+arithmetic is not evidence that MPS is infeasible; the only MPS boundary claimed
+here is the measured Q4-A boundary on the identical projected task.
+
+## Q1 — Qiskit compatibility
+
+At 4,096 shots per engine, Aer statevector and QSeqSim passed all nine tested
+circuits: Bell, two measurement-driven dynamic cases, three QRW cases, and
+three Grover cases. TVD was 0.0049–0.0337, below the predeclared 0.10 sampling
+sanity threshold. Aer 0.17.2 needs a repeated deterministic guard measurement
+after a while-last-instruction shape; both engines receive that same semantic
+circuit rather than engine-specific variants.
+
+## Q2 — shot amortization
+
+Mac median backend-call times show the expected one-time symbolic-build
+amortization. Measurement-while crosses between 1k and 10k shots and QRW q8/i2
+between 10k and 100k; Grover q6/i2 has no crossover through 100k shots.
+
+| Case | Engine | 1 shot | 1k | 10k | 100k |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Measurement while | Aer statevector | 0.0018 | 0.0056 | 0.0538 | 0.1785 |
+|  | QSeqSim | 0.0401 | 0.0399 | 0.0401 | 0.0464 |
+| QRW q8/i2 | Aer statevector | 0.0025 | 0.0146 | 0.0993 | 1.0067 |
+|  | QSeqSim | 0.3009 | 0.3042 | 0.3043 | 0.3185 |
+| Grover q6/i2 | Aer statevector | 0.0027 | 0.0103 | 0.0547 | 0.6489 |
+|  | QSeqSim | 0.7130 | 0.7161 | 0.7204 | 0.7152 |
+
+Aer 0.17.2 warns that shot branching can be unstable on macOS. The checked-in
+macOS shot-branching run is therefore a diagnostic only. Native Linux x86_64
+is the right platform for a formal shot-branching reproduction.
+
+## Q3 — small/full-output negative control
+
+Q3 uses the same two structured iterations and 1,024 shots but measures the
+full register at q4–q12. Aer statevector is fastest at every selected point.
+
+| Family / q12 | Aer statevector | Aer MPS | QSeqSim | QSeqSim outcomes |
+| --- | ---: | ---: | ---: | ---: |
+| QRW | 0.1833 s | 12.3068 s | 0.5740 s | 4 |
+| Grover | 0.4724 s | 9.0386 s | 47.9123 s | 2,048 |
+
+At Grover q12 the absolute worker peaks were 98.9 MiB for statevector,
+110.3 MiB for MPS, and 1,947.6 MiB for QSeqSim. Q3 already supplies the needed
+output-width sensitivity: changing from full-register output to Q4's one-bit
+projection changes branch growth and can reverse which simulator is favorable.
+No extra post-hoc sensitivity experiment is required.
+
+## Environment and claim boundary
+
+| Setting | Value |
 | --- | --- |
-| Platform | macOS 26.5.2, Apple arm64 |
-| Python | 3.13.9 |
-| Qiskit | 2.4.2 |
-| Qiskit Aer | 0.17.2 |
-| Aer method | `statevector` |
-| `dd` / NumPy | 0.6.0 / 2.4.2 |
-| Seed | 20260812 |
-| Performance shots | 512 |
-| Correctness shots | 4096 per engine |
-| Repeats / cutoff | 3 / 60 seconds per worker |
+| Host | macOS 26.5.2 arm64; Apple M2, 8 cores; 16 GiB RAM |
+| Python / Qiskit / Aer | 3.13.9 / 2.4.2 / 0.17.2 |
+| `dd` / NumPy | 0.6.0 with `dd.cudd` / 2.4.2 |
+| Simulation | ideal/no-noise |
+| Q4-A | two iterations; q0 projection; 1,024 shots; 3 repeats |
+| Timed region | `backend.run(...).result()` |
+| Q4-A cutoff | 120 seconds per fresh worker |
+| Memory | absolute fresh-worker peak RSS |
 
-Each engine ran in a fresh worker process. The timed region is
-`backend.run(...).result()`; circuit construction and transpilation are measured
-separately and excluded from the table. Memory is the absolute peak RSS of that
-isolated worker, so it includes the engine runtime and imports and should not be
-interpreted as a pure circuit-state allocation.
+Absolute ratios are calculated only within this run: same host, case, timed
+boundary, and stable completion. Results do not generalize to noise, other Aer
+methods, arbitrary circuit families, or wider requested output distributions.
 
-Both engines receive the same source circuit and shots. QSeqSim executes a
-complete symbolic classical-outcome distribution once and then samples it;
-Aer performs its configured numerical shot simulation. The resulting counts
-have comparable user semantics, but the internal computational tasks differ.
-The wall-time ratios below are therefore **not** labeled speedups.
-
-## Workloads and correctness
-
-The suite contains:
-
-- an ordinary Bell baseline, where Aer is expected to be highly competitive;
-- a measurement-driven `while` and an `if` nested inside `while`;
-- QRW bodies from the FM benchmark family at `(qubits, iterations)` equal to
-  `(4, 1)`, `(8, 2)`, and `(12, 4)`; and
-- Grover bodies from the FM benchmark family at `(4, 1)`, `(6, 2)`, and
-  `(8, 4)`.
-
-The structured families use a finite Qiskit `for_loop` around the original FM
-QRW/Grover iteration body and measure all qubits at the end. This makes the
-executed task finite and identical for both backends; it does not reproduce the
-paper's specialized preset-path task or its largest scale.
-
-For each case, 4096-shot runs were compared before performance measurement.
-All nine cases had matching observed outcome support. Bell and both dynamic
-cases also matched their analytical support (`00/11` and `01/11`,
-respectively). Total-variation distances between engine counts ranged from
-0.0049 to 0.0337, below the predeclared 0.10 sampling sanity threshold.
-
-Aer 0.17.2 rejected the measurement-driven while when the `WhileLoopOp` was
-literally the final circuit instruction, reporting `Invalid jump destination`.
-Repeating the already deterministic guard measurement after the loop preserves
-the result semantics and made the circuit executable. This compatibility detail
-is recorded separately from performance; Aer successfully executed every
-benchmark circuit actually reported below.
-
-## Results
-
-Median of three execution repeats:
-
-| Case | Qubits | Iterations | Structure ops | Aer wall (s) | QSeqSim wall (s) | Aer peak RSS (MiB) | QSeqSim peak RSS (MiB) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Bell | 2 | 0 | 3 | 0.0014 | 0.0349 | 96.9 | 163.5 |
-| Measurement while | 2 | 1 | 5 | 0.0037 | 0.0400 | 96.9 | 163.6 |
-| If in while | 3 | 1 | 6 | 0.0053 | 0.0406 | 96.7 | 163.3 |
-| QRW | 4 | 1 | 12 | 0.0036 | 0.0593 | 96.7 | 171.1 |
-| QRW | 8 | 2 | 40 | 0.0084 | 0.3052 | 96.9 | 204.2 |
-| QRW | 12 | 4 | 108 | 0.1098 | 1.2768 | 97.9 | 301.3 |
-| Grover | 4 | 1 | 25 | 0.0033 | 0.2438 | 97.2 | 275.9 |
-| Grover | 6 | 2 | 68 | 0.0061 | 0.7276 | 97.0 | 655.2 |
-| Grover | 8 | 4 | 172 | 0.0192 | 2.0987 | 96.8 | 1288.2 |
-
-`Structure ops` is the expanded number of family-body operations plus final
-measurements. The current distribution adapter does not expose a stable public
-peak-BDD-node counter, so this reproducible structural metric is reported
-instead of inventing a BDD-node number.
-
-## Interpretation
-
-Aer is faster and uses less process memory on every selected small-to-medium
-case. This is an important negative result for broad performance claims:
-QSeqSim should not be described as generally faster than Aer, including merely
-because a circuit contains dynamic control flow.
-
-The benchmark does validate the intended integration and semantics: current
-Aer and QSeqSim can execute the reported dynamic circuits, and their sampled
-results agree at small scale. QSeqSim's distinct value remains its BDD/WMC
-representation, explicit sequential semantics, state retention, and complete
-branch-distribution construction for structured workloads. Evidence for very
-large structured preset-path cases remains in the separately reproducible FM
-artifact and is not presented here as an apples-to-apples Aer advantage.
+A lightweight manual GitHub-hosted Ubuntu run would improve cross-platform Q2
+shot-branching and Q4 anchor reproducibility, but shared-runner variability is
+unsuitable for precise timing claims and its absolute times must never be mixed
+with Apple M2 ratios. It is a post-0.1 reproducibility item, not a v0.1.0 release
+blocker: the macOS Q4-A statevector/MPS comparison is internally same-machine
+and does not depend on the separate shot-branching warning.
 
 ## Reproduce
 
 From an environment with CUDD-backed `dd.cudd`:
 
 ```bash
-python -m pip install -e '.[test,benchmark]'
+python -m pip install '.[test,benchmark]'
 python benchmarks/ecosystem_benchmark.py \
-  --repeats 3 --shots 512 --correctness-shots 4096 --timeout 60
+  --suite all --repeats 3 \
+  --shots-grid 1,10,100,1000,10000,100000 \
+  --q3-shots 1024 --q3-qubits 4,6,8,10,12 \
+  --q3-iterations 2 --correctness-shots 4096 --timeout 120
+
+python benchmarks/ecosystem_large_scale_benchmark.py \
+  --repeats 3 --shots 1024 --correctness-shots 4096 --iterations 2 \
+  --qrw-widths 12,14,16,18,20,24,32,64,128,256,512,1024 \
+  --grover-widths 12,14,16,18,20,24,32,64,128,256 \
+  --timeout 120 --capability-timeout 600 --statevector-max-gib 2
 ```
 
-Machine-readable results are committed as:
+On Linux the Q2 harness automatically includes Aer shot branching. On macOS it
+is disabled unless `--enable-macos-shot-branching` requests a non-formal probe.
+A Q4 method stops after its first timeout/error; later widths remain recorded
+as `not_run_after_boundary` rather than being mislabeled unsupported.
 
-- `benchmarks/results/ecosystem_benchmark_2026-08-12.csv`
-- `benchmarks/results/ecosystem_benchmark_2026-08-12.json`
-
-No temporary statevectors, CUDD dumps, or other large artifacts are retained.
+Machine-readable results are in `benchmarks/results/`: the original CP6 result,
+the extended macOS Q1–Q3 run, the non-formal macOS shot-branching probe, and the
+macOS Q4-A/Q4-B run. No statevectors, CUDD dumps, or large logs are retained.

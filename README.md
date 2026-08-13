@@ -64,9 +64,16 @@ pre-conversion algebra use stronger internal representations. See
 - Demonstrated large structured QRW cases in the FM artifact. These results are
   workload-specific, not a general simulator performance claim.
 
-In the current ecosystem benchmark, QSeqSim and Aer agreed on all small-scale
-correctness checks, while Aer was faster and used less process memory on every
-selected small-to-medium case. See the [methodology and complete cautious
+On identical ideal Qiskit workloads with two structured iterations, one-bit
+`q[0]` projection, 1,024 shots, and the same backend execution boundary,
+QSeqSim crossed the fastest stable Aer method at about 14–16 qubits. Selected
+common-width points showed 4.8×–150× lower backend latency for QRW and
+9.9×–118× for Grover. Under the 120-second per-worker cutoff on the tested
+Apple M2 system, stable completion boundaries were QRW q20/q18/q256 for Aer
+statevector/Aer MPS/QSeqSim and Grover q18/q18/q128. Aer still won the small
+full-register calibration, and QSeqSim became unfavorable as the requested
+symbolic output expanded. These are selected projected-workload results, not a
+universal simulator claim; see the [methodology and complete cautious
 interpretation](docs/ECOSYSTEM_BENCHMARK.md).
 
 ## Installation

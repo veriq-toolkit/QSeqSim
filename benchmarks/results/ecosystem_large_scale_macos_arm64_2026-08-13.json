@@ -1,0 +1,1449 @@
+{
+  "configuration": {
+    "correctness_shots": 4096,
+    "grover_widths": [
+      12,
+      14,
+      16,
+      18,
+      20,
+      24,
+      32,
+      64,
+      128,
+      256
+    ],
+    "iterations": 2,
+    "memory_scope": "absolute per-worker process peak RSS",
+    "q4_capability_semantics": "conditioned preset measurement path; capability evidence only, not an Aer ratio",
+    "q4_projected_semantics": "same finite circuit and q[0] measurement for every backend",
+    "qrw_widths": [
+      12,
+      14,
+      16,
+      18,
+      20,
+      24,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024
+    ],
+    "repeats": 3,
+    "shots": 1024,
+    "simulation": "ideal/no-noise",
+    "statevector_preflight_limit_gib": 2.0,
+    "timed_scope": "backend.run(...).result(); circuit construction and transpile excluded",
+    "timeout_seconds_per_capability_worker": 600.0,
+    "timeout_seconds_per_projected_worker": 120.0
+  },
+  "correctness_bridges": [
+    {
+      "case": "qrw_projected_q12_i2",
+      "shots_per_engine": 4096,
+      "status": "pass",
+      "supports": {
+        "aer_mps": [
+          "0",
+          "1"
+        ],
+        "aer_statevector": [
+          "0",
+          "1"
+        ],
+        "qseqsim": [
+          "0",
+          "1"
+        ]
+      },
+      "total_variation_from_statevector": {
+        "aer_mps": 0.0,
+        "qseqsim": 0.0048828125
+      }
+    },
+    {
+      "case": "grover_projected_q12_i2",
+      "shots_per_engine": 4096,
+      "status": "pass",
+      "supports": {
+        "aer_mps": [
+          "0",
+          "1"
+        ],
+        "aer_statevector": [
+          "0",
+          "1"
+        ],
+        "qseqsim": [
+          "0",
+          "1"
+        ]
+      },
+      "total_variation_from_statevector": {
+        "aer_mps": 0.0,
+        "qseqsim": 0.00146484375
+      }
+    }
+  ],
+  "environment": {
+    "arch": "arm64",
+    "cpu": "Apple M2 (8 cores)",
+    "date": "2026-08-13",
+    "dd": "0.6.0",
+    "dd_backend": "dd.cudd",
+    "formal_shot_branching_platform": false,
+    "numpy": "2.4.2",
+    "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.9",
+    "qiskit": "2.4.2",
+    "qiskit_aer": "0.17.2",
+    "ram_gib": 16.0,
+    "seed": 20260812
+  },
+  "summaries": [
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q12_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 98.640625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.05711554200388491,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q14_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 104.609375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.24848908401327208,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q16_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 135.15625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 1.6332618750166148,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q18_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 279.03125,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 7.375698583025951,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q20_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 790.796875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 40.290465541998856,
+      "probability": null,
+      "qubits": 20,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q24_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "timeout"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q32_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q64_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q128_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q256_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q512_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q1024_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q12_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 120.921875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 24.56414470798336,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q14_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 134.578125,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 35.35079091700027,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q16_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 153.71875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 58.96229570900323,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q18_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 165.015625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 91.94505820894847,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_projected_q20_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 180.921875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 115.96964110448607,
+      "probability": null,
+      "qubits": 20,
+      "shots": 1024,
+      "statuses": [
+        "ok",
+        "timeout"
+      ],
+      "successful_repeats": 2,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q24_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q32_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q64_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q128_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q256_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q512_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q1024_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q12_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 140.734375,
+      "median_sampling_seconds": 0.0001261659781448543,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.17776975000742823,
+      "median_wall_seconds": 0.17817366699455306,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q14_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 148.21875,
+      "median_sampling_seconds": 0.0001474579912610352,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.2466784999705851,
+      "median_wall_seconds": 0.24707183300051838,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q16_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 149.046875,
+      "median_sampling_seconds": 0.00020775001030415297,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.3413798750261776,
+      "median_wall_seconds": 0.3424951249617152,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q18_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 141.125,
+      "median_sampling_seconds": 0.00012675003381446004,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.31709258299088106,
+      "median_wall_seconds": 0.317486584011931,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q20_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 148.59375,
+      "median_sampling_seconds": 0.00010812497930601239,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.26746762497350574,
+      "median_wall_seconds": 0.26779487502062693,
+      "probability": null,
+      "qubits": 20,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q24_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 148.78125,
+      "median_sampling_seconds": 0.00010712497169151902,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.33968770800856873,
+      "median_wall_seconds": 0.3400385830318555,
+      "probability": null,
+      "qubits": 24,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q32_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 149.40625,
+      "median_sampling_seconds": 0.00012308399891480803,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.5951777910231613,
+      "median_wall_seconds": 0.5957205829909071,
+      "probability": null,
+      "qubits": 32,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q64_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 142.28125,
+      "median_sampling_seconds": 0.00010837498120963573,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 1.753017540962901,
+      "median_wall_seconds": 1.7534132500295527,
+      "probability": null,
+      "qubits": 64,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q128_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 146.953125,
+      "median_sampling_seconds": 0.0001005409867502749,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 7.761573916999623,
+      "median_wall_seconds": 7.761972500011325,
+      "probability": null,
+      "qubits": 128,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "qrw_projected_q256_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 138.203125,
+      "median_sampling_seconds": 0.00018045800970867276,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 44.58571999997366,
+      "median_wall_seconds": 44.58662187500158,
+      "probability": null,
+      "qubits": 256,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q512_i2",
+      "engine": "qseqsim",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "timeout"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "qrw_projected_q1024_i2",
+      "engine": "qseqsim",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q12_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 99.265625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.3281627499964088,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q14_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 106.859375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 3.156032208004035,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q16_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 142.171875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 11.309628707997035,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q18_i2",
+      "engine": "aer_statevector",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 250.359375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 54.01110350003,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q20_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "timeout"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q24_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q32_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q64_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q128_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q256_i2",
+      "engine": "aer_statevector",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q12_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 111.109375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 14.018345666991081,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q14_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 115.84375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 22.008856416970957,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q16_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 121.859375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 25.4988904579659,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q18_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 139.703125,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 43.80548899999121,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_projected_q20_i2",
+      "engine": "aer_mps",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 194.21875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 115.65664654201828,
+      "probability": null,
+      "qubits": 20,
+      "shots": 1024,
+      "statuses": [
+        "ok",
+        "timeout"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q24_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q32_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q64_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q128_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q256_i2",
+      "engine": "aer_mps",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "not_run_after_boundary"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q12_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 140.90625,
+      "median_sampling_seconds": 7.154204649850726e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.30967091699130833,
+      "median_wall_seconds": 0.3099130000337027,
+      "probability": null,
+      "qubits": 12,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q14_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 147.625,
+      "median_sampling_seconds": 7.808400550857186e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.31738133396720514,
+      "median_wall_seconds": 0.3177324580028653,
+      "probability": null,
+      "qubits": 14,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q16_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 140.34375,
+      "median_sampling_seconds": 7.508299313485622e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.37226495798677206,
+      "median_wall_seconds": 0.3726293329964392,
+      "probability": null,
+      "qubits": 16,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q18_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 140.25,
+      "median_sampling_seconds": 6.620900239795446e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.37049116601701826,
+      "median_wall_seconds": 0.37072070804424584,
+      "probability": null,
+      "qubits": 18,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q20_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 148.375,
+      "median_sampling_seconds": 7.124996045604348e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.41819233301794156,
+      "median_wall_seconds": 0.4185584170045331,
+      "probability": null,
+      "qubits": 20,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q24_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 140.734375,
+      "median_sampling_seconds": 6.929202936589718e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.48859804100356996,
+      "median_wall_seconds": 0.4888301659957506,
+      "probability": null,
+      "qubits": 24,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q32_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 148.40625,
+      "median_sampling_seconds": 6.65000407025218e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 0.6836777080316097,
+      "median_wall_seconds": 0.6839044169755653,
+      "probability": null,
+      "qubits": 32,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q64_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 142.265625,
+      "median_sampling_seconds": 6.658298661932349e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 2.715728792012669,
+      "median_wall_seconds": 2.7159997500129975,
+      "probability": null,
+      "qubits": 64,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": 2,
+      "case": "grover_projected_q128_i2",
+      "engine": "qseqsim",
+      "iterations": 2,
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": 153.203125,
+      "median_sampling_seconds": 6.983400089666247e-05,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": 16.35913283401169,
+      "median_wall_seconds": 16.35948333295528,
+      "probability": null,
+      "qubits": 128,
+      "shots": 1024,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 3,
+      "suite": "q4_projected"
+    },
+    {
+      "case": "grover_projected_q256_i2",
+      "engine": "qseqsim",
+      "median_parse_seconds": null,
+      "median_peak_rss_mib": null,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": null,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": null,
+      "statuses": [
+        "timeout"
+      ],
+      "successful_repeats": 0,
+      "suite": "q4_projected"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_preset_path_q16_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.0003119580214843154,
+      "median_peak_rss_mib": 146.609375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.018527916981838644,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.03264675004174933,
+      "probability": 0.5,
+      "qubits": 16,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_preset_path_q128_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.006844624993391335,
+      "median_peak_rss_mib": 135.640625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.322691457986366,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.3399765830254182,
+      "probability": 0.5,
+      "qubits": 128,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_preset_path_q1024_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.5144782499992289,
+      "median_peak_rss_mib": 273.84375,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 98.57029179198435,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 99.10368004196789,
+      "probability": 0.5,
+      "qubits": 1024,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_preset_path_q16_i3",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 3,
+      "median_parse_seconds": 0.00029504200210794806,
+      "median_peak_rss_mib": 146.921875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.0360980830155313,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.04757150000659749,
+      "probability": 0.125,
+      "qubits": 16,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "qrw_preset_path_q128_i3",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 3,
+      "median_parse_seconds": 0.006744958984199911,
+      "median_peak_rss_mib": 160.21875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 1.022892166976817,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 1.0407827089657076,
+      "probability": 0.125,
+      "qubits": 128,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_preset_path_q16_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.000540749984793365,
+      "median_peak_rss_mib": 146.390625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.041658041009213775,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.052666374016553164,
+      "probability": 0.5,
+      "qubits": 16,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_preset_path_q128_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.002201166993472725,
+      "median_peak_rss_mib": 150.875,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.30871420801850036,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.3238297500065528,
+      "probability": 0.5,
+      "qubits": 128,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    },
+    {
+      "branch_outcomes": null,
+      "case": "grover_preset_path_q256_i1",
+      "engine": "qseqsim_bddseqsim_lowering",
+      "iterations": 1,
+      "median_parse_seconds": 0.003976417006924748,
+      "median_peak_rss_mib": 156.265625,
+      "median_sampling_seconds": null,
+      "median_simulation_seconds": 0.7568230420001782,
+      "median_symbolic_build_seconds": null,
+      "median_wall_seconds": 0.7727938339812681,
+      "probability": 0.5,
+      "qubits": 256,
+      "shots": null,
+      "statuses": [
+        "ok"
+      ],
+      "successful_repeats": 1,
+      "suite": "q4_capability"
+    }
+  ]
+}
