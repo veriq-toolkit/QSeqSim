@@ -19,12 +19,13 @@ maintainer supplies and verifies another destination.
 
 ## Version strategy
 
-CP6 keeps source metadata at `0.1.0.dev0`. This accurately states that no
-release candidate or final artifact has been published. After remote backup and
-staging approval, one small release commit should change every version source
-to `0.1.0`, update the changelog date, build and inspect artifacts, and only
-then create the matching annotated `v0.1.0` tag. There is no `0.1.0` or
-`0.1.0rc1` tag in CP6.
+The first TestPyPI staging consumed `0.1.0.dev0` and exposed a published-install
+documentation blocker: macOS arm64 can otherwise receive the pure-Python `dd`
+wheel, which has no `dd.cudd`, and the package description relied on repository-
+relative links and a checkout-only helper. CP7-C.1 therefore advances every
+version source to `0.1.0.dev1` while leaving the planned final release at
+`0.1.0`. The dev1 staging fix documents independently usable install commands;
+it does not create a tag or final release.
 
 ## Dependency contract
 

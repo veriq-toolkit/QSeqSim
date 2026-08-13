@@ -72,7 +72,7 @@ class QSeqSimBackend(BackendV2):
         super().__init__(
             name="qseqsim",
             description="QSeqSim symbolic dynamic-circuit simulator",
-            backend_version="0.1.0.dev0",
+            backend_version="0.1.0.dev1",
             **options,
         )
 

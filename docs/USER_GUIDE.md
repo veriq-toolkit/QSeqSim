@@ -6,7 +6,25 @@ It complements:
 - AE reproduction instructions: [ae/README.md](../ae/README.md)
 - Project overview: [README.md](../README.md)
 
-> Recommended environment: **Docker** (contains CUDD + dd). Native installs are possible but less stable.
+> QSeqSim requires the compiled `dd.cudd` backend and never falls back to
+> `dd.autoref`. Docker is the reproducible source-checkout environment. For a
+> published install, follow the platform-specific commands in the
+> [README installation section](https://github.com/veriq-toolkit/QSeqSim#installation).
+
+On Linux x86_64 with CPython 3.12/3.13, the tested `dd==0.6.0` manylinux wheel
+contains `dd.cudd`, so `python -m pip install qseqsim` is the primary path. On
+macOS arm64, build `dd` first; do not rely on a helper that exists only in a
+source checkout:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
+python -m pip install qseqsim
+python -c "import dd.cudd, qseqsim; print(qseqsim.__version__, dd.cudd.__version__)"
+```
+
+Native Windows is not currently supported.
 
 ---
 

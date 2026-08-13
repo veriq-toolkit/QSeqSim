@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qseqsim"
-version = "0.1.0.dev0"
+version = "0.1.0.dev1"
 description = "Structure-aware symbolic simulation of dynamic and sequential Qiskit circuits"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
@@ -56,11 +56,11 @@ benchmark = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Veri-Q/QSeqSim"
-Documentation = "https://github.com/Veri-Q/QSeqSim#readme"
-Issues = "https://github.com/Veri-Q/QSeqSim/issues"
-Repository = "https://github.com/Veri-Q/QSeqSim.git"
-Changelog = "https://github.com/Veri-Q/QSeqSim/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/veriq-toolkit/QSeqSim"
+Documentation = "https://github.com/veriq-toolkit/QSeqSim#readme"
+Issues = "https://github.com/veriq-toolkit/QSeqSim/issues"
+Repository = "https://github.com/veriq-toolkit/QSeqSim.git"
+Changelog = "https://github.com/veriq-toolkit/QSeqSim/blob/main/CHANGELOG.md"
 Paper = "https://doi.org/10.1007/978-3-032-26204-2_30"
 
 [tool.setuptools.packages.find]

@@ -12,7 +12,7 @@ from .qiskit_backend import QSeqSimBackend, QSeqSimJob
 from .primitives import QSeqPrimitiveJob, QSeqSampler, QSeqSamplerV2
 from .simulator import BDDSimulator
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0.dev1"
 
 
 class QSeqSimulator(BDDSimulator):

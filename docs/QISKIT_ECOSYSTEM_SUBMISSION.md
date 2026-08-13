@@ -31,9 +31,9 @@ optional package field is useful and verifiable.
 | Labels | `quantum information`, `research`, `openqasm`, `benchmarking` |
 | Interface/API | `Python` |
 | Maturity | `experimental` |
-| GitHub repository | `https://github.com/Veri-Q/QSeqSim` |
+| GitHub repository | `https://github.com/veriq-toolkit/QSeqSim` |
 | Home page | Leave empty until the team supplies and verifies a dedicated URL |
-| Documentation | `https://github.com/Veri-Q/QSeqSim/tree/main/docs` after release commits reach the default branch |
+| Documentation | `https://github.com/veriq-toolkit/QSeqSim/tree/main/docs` after release commits reach the default branch |
 | Package | `https://pypi.org/project/qseqsim/` after publication |
 | Reference paper | `https://doi.org/10.1007/978-3-032-26204-2_30` |
 | Code of Conduct | Agree to follow the Qiskit Code of Conduct |

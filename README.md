@@ -53,7 +53,7 @@ sampler_counts = QSeqSamplerV2(default_shots=128, seed=7).run(
 
 The public probability contract is binary64 even though model counts and the
 pre-conversion algebra use stronger internal representations. See
-[Public numerical contract](docs/NUMERICAL_CONTRACT.md).
+[Public numerical contract](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/NUMERICAL_CONTRACT.md).
 
 ## Scope
 
@@ -74,11 +74,49 @@ statevector/Aer MPS/QSeqSim and Grover q18/q18/q128. Aer still won the small
 full-register calibration, and QSeqSim became unfavorable as the requested
 symbolic output expanded. These are selected projected-workload results, not a
 universal simulator claim; see the [methodology and complete cautious
-interpretation](docs/ECOSYSTEM_BENCHMARK.md).
+interpretation](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ECOSYSTEM_BENCHMARK.md).
 
 ## Installation
 
-### Option A: Docker (recommended)
+QSeqSim requires the compiled `dd.cudd` backend and deliberately does not fall
+back to `dd.autoref`. The correct installation path therefore depends on
+whether PyPI provides a CUDD-enabled `dd` wheel for the platform.
+
+### Linux x86_64 with CPython 3.12 or 3.13
+
+PyPI provides tested manylinux wheels for `dd==0.6.0` on this platform. The
+normal one-command install is the primary path:
+
+```bash
+python -m pip install qseqsim
+python -c "import dd.cudd, qseqsim; print(qseqsim.__version__, dd.cudd.__version__)"
+```
+
+This claim is limited to Linux x86_64 with CPython 3.12/3.13. It does not imply
+that every `dd` wheel or Linux architecture contains `dd.cudd`.
+
+### macOS arm64 with CPython 3.12 or 3.13
+
+PyPI does not provide a matching `dd==0.6.0` platform wheel. Build `dd` from
+source with CUDD enabled before installing QSeqSim:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
+python -m pip install qseqsim
+python -c "import dd.cudd, qseqsim; print(qseqsim.__version__, dd.cudd.__version__)"
+```
+
+Use `python3.13` instead if that is the supported interpreter in the new
+environment. The command downloads and builds CUDD, so Xcode Command Line Tools
+and network access are required. `--no-cache-dir` prevents pip from reusing a
+previously cached pure-Python `dd` wheel. QSeqSim does not claim native Windows
+support.
+
+### Docker (reproducible source checkout)
 
 The Docker image includes CUDD and a working `dd` build. This is the easiest way to get a reproducible environment.
 
@@ -87,25 +125,19 @@ docker build -t qseqsim-ae .
 docker run --rm -it qseqsim-ae:latest bash
 ```
 
-### Option B: Native package install
+### Development from a source checkout
 
 #### Prerequisites
 
 - Python 3.12 or 3.13
-- A C/C++ toolchain (required by `dd`)
+- A C/C++ toolchain (required when building `dd` from source)
 
-The `dd` package depends on the CUDD library. The dd authors recommend building CUDD from source; we provide a helper script under `ae/scripts/install_dd_cudd.sh` that follows that approach.
+The repository also provides
+[`ae/scripts/install_dd_cudd.sh`](https://github.com/veriq-toolkit/QSeqSim/blob/main/ae/scripts/install_dd_cudd.sh)
+as a source-checkout convenience. Published installation does not depend on
+this helper; use the inline platform commands above when installing from PyPI.
 
 Reference: https://github.com/tulip-control/dd
-
-#### Dependencies
-
-Install CUDD (recommended method):
-
-```bash
-chmod +x ae/scripts/install_dd_cudd.sh
-./ae/scripts/install_dd_cudd.sh
-```
 
 Create an environment and build the canonical CUDD backend:
 
@@ -113,7 +145,8 @@ Create an environment and build the canonical CUDD backend:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
-./ae/scripts/install_dd_cudd.sh
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
 ```
 
 Install QSeqSim from the repository:
@@ -262,7 +295,7 @@ in deterministic order.
 | Classical expression conditions | Explicitly unsupported |
 | Dynamic variables and `Store` | Explicitly unsupported |
 
-See [the user guide](docs/USER_GUIDE.md) for the complete gate and control-flow matrix.
+See [the user guide](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/USER_GUIDE.md) for the complete gate and control-flow matrix.
 
 ## Project Structure
 
@@ -328,16 +361,16 @@ python exp/simulation/exp_engine.py qiskit_grover
 
 ## Documentation (User / Reuse / AE)
 
-- **User guide (library API, semantics, troubleshooting):** [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
-- **Public numerical contract:** [docs/NUMERICAL_CONTRACT.md](docs/NUMERICAL_CONTRACT.md)
-- **Ecosystem benchmark:** [docs/ECOSYSTEM_BENCHMARK.md](docs/ECOSYSTEM_BENCHMARK.md)
-- **Reuse & extension guide (add benchmarks / add gates / testing):** [docs/REUSE.md](docs/REUSE.md)
-- **Environment & installation notes (Docker/native, CUDD + dd):** [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
-- **Package API and FM import migration:** [docs/PACKAGING.md](docs/PACKAGING.md)
-- **Results format (CSV schemas):** [docs/RESULTS_FORMAT.md](docs/RESULTS_FORMAT.md)
-- **Runnable toy examples:** [examples/](examples/)
-- **Regression / toy tests:** [test/](test/)
-- **Artifact Evaluation (FM 2026):** [ae/README.md](ae/README.md)
+- **User guide (library API, semantics, troubleshooting):** [docs/USER_GUIDE.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/USER_GUIDE.md)
+- **Public numerical contract:** [docs/NUMERICAL_CONTRACT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/NUMERICAL_CONTRACT.md)
+- **Ecosystem benchmark:** [docs/ECOSYSTEM_BENCHMARK.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ECOSYSTEM_BENCHMARK.md)
+- **Reuse & extension guide (add benchmarks / add gates / testing):** [docs/REUSE.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/REUSE.md)
+- **Environment & installation notes (Docker/native, CUDD + dd):** [docs/ENVIRONMENT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ENVIRONMENT.md)
+- **Package API and FM import migration:** [docs/PACKAGING.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/PACKAGING.md)
+- **Results format (CSV schemas):** [docs/RESULTS_FORMAT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/RESULTS_FORMAT.md)
+- **Runnable toy examples:** [examples/](https://github.com/veriq-toolkit/QSeqSim/tree/main/examples)
+- **Regression / toy tests:** [test/](https://github.com/veriq-toolkit/QSeqSim/tree/main/test)
+- **Artifact Evaluation (FM 2026):** [ae/README.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/ae/README.md)
 
 ## Artifact Evaluation (FM 2026)
 
@@ -352,7 +385,7 @@ chmod +x ae/scripts/run_smoke.sh
 
 This runs small subsets of Tables 1–5 and writes CSV results under `ae/results/`.
 
-**Full AE instructions:** see [ae/README.md](ae/README.md) for Docker usage, full reproduction steps, expected outputs, and reuse guidance.
+**Full AE instructions:** see [ae/README.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/ae/README.md) for Docker usage, full reproduction steps, expected outputs, and reuse guidance.
 
 **Docker build (optional):**
 
@@ -363,4 +396,4 @@ docker run --rm -it qseqsim-ae:latest bash
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](https://github.com/veriq-toolkit/QSeqSim/blob/main/LICENSE) file for details.

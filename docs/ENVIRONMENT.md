@@ -40,7 +40,7 @@ Native installation is possible but **less robust** than Docker, mainly due to:
 Supported platforms:
 - Python: **3.12 and 3.13**
 - OS: Linux or macOS recommended
-- Windows: not officially supported; consider WSL2
+- Windows: no native support claim; consider a Linux environment such as WSL2
 
 The package metadata deliberately excludes Python 3.14. Python 3.13.9 was used
 for the CP1 correctness audit, while Python 3.12 remains the Docker and FM/AE
@@ -63,27 +63,38 @@ when the extension is absent. There is no automatic `dd.autoref` fallback.
 
 If `dd.cudd` is missing, QSeqSim will not run.
 
-## 4. Native install path: use the provided script
-We provide a helper script from https://github.com/tulip-control/dd:
+## 4. Native install paths
 
-- `ae/scripts/install_dd_cudd.sh`
+On Linux x86_64 with CPython 3.12 or 3.13, ordinary pip selects a tested
+manylinux `dd==0.6.0` wheel containing `dd.cudd`:
 
-It builds and installs `dd` with `dd.cudd` enabled by forcing a **source build** and fetching CUDD during installation.
+```bash
+python -m pip install qseqsim
+python -c "import dd.cudd, qseqsim; print(qseqsim.__version__, dd.cudd.__version__)"
+```
 
-### 4.1 Run the script
-From repository root (inside a venv is recommended):
+This is a deliberately narrow platform claim. Always run the import check.
+
+On macOS arm64, create a fresh environment and force the `dd` source build:
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -U pip setuptools wheel
-
-chmod +x ae/scripts/install_dd_cudd.sh
-./ae/scripts/install_dd_cudd.sh
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
+python -m pip install qseqsim
+python -c "import dd.cudd, qseqsim; print(qseqsim.__version__, dd.cudd.__version__)"
 ```
 
-### 4.2 What the script does (important for debugging)
-The script (as included in this repo) performs:
+The repository's `ae/scripts/install_dd_cudd.sh` performs the equivalent
+download/unpack/build flow and remains useful for development or AE from a
+source checkout. It is not included in the wheel or sdist and is not part of
+the published-install contract.
+
+### 4.1 What the source-checkout helper does (for debugging)
+
+The helper performs:
 
 1. `pip install dd`
 - to install build dependencies / ensure pip can resolve requirements
@@ -110,7 +121,7 @@ build the `dd.cudd_zdd` extension
 If you encounter errors, the -vvv logs usually show the missing header/library or compiler issue.
 
 Note: Installing `dd` before CUDD exists may produce a non-CUDD installation.
-Always run the script (or reinstall) to ensure `dd.cudd` is present.
+Always run the explicit import check to ensure `dd.cudd` is present.
 
 ## 5. Verifying the installation
 ### 5.1 Verify `dd.cudd`
@@ -158,8 +169,9 @@ Cause:
 Fix (force a source rebuild with CUDD):
 
 ```bash
-pip uninstall -y dd
-./ae/scripts/install_dd_cudd.sh
+python -m pip uninstall -y dd
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
 ```
 
 ### 6.2 Build fails: missing compiler / Python headers
@@ -179,10 +191,11 @@ ensure command line tools are installed:
 xcode-select --install
 ```
 
-Then rerun:
+Then rerun the source build:
 
 ```bash
-./ae/scripts/install_dd_cudd.sh
+DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1 \
+  python -m pip install --no-cache-dir --no-binary=dd --no-build-isolation 'dd==0.6.0'
 ```
 
 ### 6.3 macOS: architecture mismatch (arm64 vs x86_64)
