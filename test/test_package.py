@@ -22,7 +22,7 @@ from qseqsim._backend import cudd
 def test_public_api_and_canonical_backend():
     assert issubclass(QSeqSimulator, BDDSimulator)
     assert cudd.__name__ == "dd.cudd"
-    assert qseqsim.__version__ == "0.1.0.dev1"
+    assert qseqsim.__version__ == "0.1.0"
     assert issubclass(SymbolicEvaluationError, RuntimeError)
     assert issubclass(UnsupportedQiskitFeatureError, ValueError)
     assert OpenQASM3Parser is QiskitParser
