@@ -1,4 +1,4 @@
-# QSeqSim
+# Veri-Q QSeqSim
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -13,9 +13,9 @@ high-performance numerical simulator with broad methods and noise support;
 QSeqSim targets symbolic sharing in structured dynamic and sequential circuits.
 It is not presented as a general Aer replacement or as universally faster.
 
-QSeqSim is developed as part of **Veri-Q**. The Python distribution and import
-namespace remain `qseqsim`; ecosystem display branding can be selected at
-submission time without renaming the API. OpenQASM 3 remains available as a
+QSeqSim is developed as part of the [**Veri-Q** toolkit](https://www.veri-q.com/).
+The Python distribution and import namespace remain `qseqsim`; the public API,
+including `QSeqSimulator`, is unchanged. OpenQASM 3 remains available as a
 secondary interchange and FM-artifact compatibility frontend.
 
 ## Three API layers

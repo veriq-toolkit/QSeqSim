@@ -45,11 +45,23 @@ def test_published_metadata_and_readme_install_contract():
     root = Path(__file__).resolve().parents[1]
     project = tomllib.loads((root / "pyproject.toml").read_text())
     readme = (root / "README.md").read_text()
+    citation = (root / "CITATION.cff").read_text()
+    urls = project["project"]["urls"]
 
-    assert all(
-        value.startswith("https://github.com/veriq-toolkit/QSeqSim")
-        for key, value in project["project"]["urls"].items()
-        if key != "Paper"
+    assert project["project"]["version"] == "0.1.0"
+    assert urls["Homepage"] == "https://www.veri-q.com/"
+    assert urls["Repository"].startswith(
+        "https://github.com/veriq-toolkit/QSeqSim"
+    )
+    assert readme.startswith("# Veri-Q QSeqSim\n")
+    assert re.search(r'^title: "Veri-Q QSeqSim"$', citation, re.MULTILINE)
+    assert re.search(
+        r'^repository-code: "https://github.com/veriq-toolkit/QSeqSim"$',
+        citation,
+        re.MULTILINE,
+    )
+    assert re.search(
+        r'^url: "https://www.veri-q.com/"$', citation, re.MULTILINE
     )
     assert "github.com/Veri-Q/QSeqSim" not in readme
     assert "](docs/" not in readme

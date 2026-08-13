@@ -11,11 +11,10 @@ either normalized name at query time. A 404 is evidence of no published PyPI
 project, not a reservation guarantee; availability must be checked again
 immediately before first upload.
 
-The recommended distribution name and Python import remain `qseqsim`.
-Ecosystem display-name candidates are `QSeqSim` and `Veri-Q QSeqSim`. The
-choice does not change the Python namespace. No team website or logo is assumed
-by the release metadata; repository URLs remain the only project URLs until a
-maintainer supplies and verifies another destination.
+The distribution name and Python import remain `qseqsim`; the project display
+name is `Veri-Q QSeqSim`. The display name does not change the Python namespace.
+The project homepage is `https://www.veri-q.com/`, while source, issue,
+documentation, and changelog URLs remain under `veriq-toolkit/QSeqSim`.
 
 ## Version strategy
 

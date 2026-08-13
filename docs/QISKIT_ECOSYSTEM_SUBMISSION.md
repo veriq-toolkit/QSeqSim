@@ -24,7 +24,7 @@ optional package field is useful and verifiable.
 
 | Field | Draft value |
 | --- | --- |
-| Project name | `QSeqSim` (default) or `Veri-Q QSeqSim` after maintainer decision |
+| Project name | `Veri-Q QSeqSim` |
 | Description (97 characters) | `BDD/WMC simulator for dynamic and sequential Qiskit circuits with BackendV2 and native SamplerV2.` |
 | Contact email | `lizh@ios.ac.cn` |
 | Category | `Circuit simulator` |
@@ -32,7 +32,7 @@ optional package field is useful and verifiable.
 | Interface/API | `Python` |
 | Maturity | `experimental` |
 | GitHub repository | `https://github.com/veriq-toolkit/QSeqSim` |
-| Home page | Leave empty until the team supplies and verifies a dedicated URL |
+| Home page | `https://www.veri-q.com/` |
 | Documentation | `https://github.com/veriq-toolkit/QSeqSim/tree/main/docs` after release commits reach the default branch |
 | Package | `https://pypi.org/project/qseqsim/` after publication |
 | Reference paper | `https://doi.org/10.1007/978-3-032-26204-2_30` |
@@ -42,9 +42,9 @@ Alternate description (97 characters):
 
 > Structure-aware BDD simulator for measurement-driven Qiskit control flow and sequential circuits.
 
-Both descriptions are below the form's 135-character limit. The default name is
-the established software name; `Veri-Q QSeqSim` is a display-only alternative
-and would not change the `qseqsim` distribution or import namespace.
+Both descriptions are below the form's 135-character limit. `Veri-Q QSeqSim`
+is the display name and does not change the `qseqsim` distribution or import
+namespace.
 
 ## Maintenance commitment draft
 
@@ -80,9 +80,8 @@ for symbolic parameter algebra, broad gate coverage, or all circuit workloads.
    are public.
 2. Complete the authorized release staging, change versions to `0.1.0`, and
    publish the package before filling the package URL.
-3. Choose `QSeqSim` or `Veri-Q QSeqSim` as the display name.
-4. Confirm whether the GitHub docs path is sufficient or supply a verified
-   project documentation/homepage URL.
-5. Submit the official issue form only after explicit maintainer authorization.
+3. Confirm whether the GitHub docs path is sufficient for the documentation
+   field.
+4. Submit the official issue form only after explicit maintainer authorization.
 
 No Ecosystem issue or pull request is created by CP6.

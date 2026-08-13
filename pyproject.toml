@@ -56,7 +56,7 @@ benchmark = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/veriq-toolkit/QSeqSim"
+Homepage = "https://www.veri-q.com/"
 Documentation = "https://github.com/veriq-toolkit/QSeqSim#readme"
 Issues = "https://github.com/veriq-toolkit/QSeqSim/issues"
 Repository = "https://github.com/veriq-toolkit/QSeqSim.git"
