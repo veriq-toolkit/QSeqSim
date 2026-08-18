@@ -1,11 +1,11 @@
-# Qiskit Ecosystem submission readiness
+# Qiskit Ecosystem membership record
 
-This is an internal draft prepared on **2026-08-12**. It does not submit an
-issue or pull request. Criteria and fields were checked against the official
-Qiskit Ecosystem repository at commit
-`1f0ccd4ed4f8aed1f8369c7be99bb62c88f317e5` (2026-08-12).
+This record was originally prepared on **2026-08-12** for the submission and
+was updated after acceptance. **Veri-Q QSeqSim is now part of the Qiskit
+Ecosystem.** The canonical membership page is
+<https://qiskit.github.io/ecosystem/p/b7361201/>.
 
-## Current criteria checklist
+## Acceptance criteria record
 
 | Official criterion | Status | Evidence / remaining action |
 | --- | --- | --- |
@@ -13,16 +13,15 @@ Qiskit Ecosystem repository at commit
 | Compatible with Qiskit SDK 2.0 or newer | Ready | Package range is `qiskit>=2.4,<2.5`; release gate covers Qiskit 2.4.x |
 | OSI-approved license | Ready | Apache-2.0 `LICENSE` and package metadata |
 | Adheres to Qiskit Code of Conduct | Ready | Repository `CODE_OF_CONDUCT.md` adopts and links the Qiskit Code of Conduct |
-| Maintainer activity within the last six months | Ready locally | CP6 has current commits; they must be pushed before submission so the public repository shows the activity |
+| Maintainer activity within the last six months | Accepted | The public repository and v0.1.0 release show current maintainer activity |
 | New projects compatible with V2 primitives | Ready | `QSeqSamplerV2` is a native `BaseSamplerV2` returning Qiskit `PrimitiveResult`, `SamplerPubResult`, `DataBin`, and `BitArray`; EstimatorV2 is outside simulator scope and is not claimed |
 
-The official issue form does not require a published package URL, but QSeqSim's
-planned submission should wait until `qseqsim` v0.1.0 is published so the
-optional package field is useful and verifiable.
+The official record links the published `qseqsim` v0.1.0 package and currently
+reports that all membership checkups pass.
 
-## Submission metadata draft
+## Published registry metadata
 
-| Field | Draft value |
+| Field | Published value |
 | --- | --- |
 | Project name | `Veri-Q QSeqSim` |
 | Description (97 characters) | `BDD/WMC simulator for dynamic and sequential Qiskit circuits with BackendV2 and native SamplerV2.` |
@@ -33,8 +32,8 @@ optional package field is useful and verifiable.
 | Maturity | `experimental` |
 | GitHub repository | `https://github.com/veriq-toolkit/QSeqSim` |
 | Home page | `https://www.veri-q.com/` |
-| Documentation | `https://github.com/veriq-toolkit/QSeqSim/tree/main/docs` after release commits reach the default branch |
-| Package | `https://pypi.org/project/qseqsim/` after publication |
+| Documentation | `https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/USER_GUIDE.md` |
+| Package | `https://pypi.org/project/qseqsim/` |
 | Reference paper | `https://doi.org/10.1007/978-3-032-26204-2_30` |
 | Code of Conduct | Agree to follow the Qiskit Code of Conduct |
 
@@ -46,7 +45,7 @@ Both descriptions are below the form's 135-character limit. `Veri-Q QSeqSim`
 is the display name and does not change the `qseqsim` distribution or import
 namespace.
 
-## Maintenance commitment draft
+## Maintenance commitment
 
 QSeqSim will be maintained as an experimental research simulator. Maintainers
 will triage correctness and compatibility issues, keep supported Qiskit 2.x and
@@ -74,14 +73,12 @@ measurement-driven sequential execution and Qiskit execution interfaces, not
 merely as another generic symbolic simulator. It should not claim superiority
 for symbolic parameter algebra, broad gate coverage, or all circuit workloads.
 
-## Submission blockers
+## Post-acceptance status
 
-1. Push/merge the CP6 release-readiness commits so CI and maintainer activity
-   are public.
-2. Complete the authorized release staging, change versions to `0.1.0`, and
-   publish the package before filling the package URL.
-3. Confirm whether the GitHub docs path is sufficient for the documentation
-   field.
-4. Submit the official issue form only after explicit maintainer authorization.
-
-No Ecosystem issue or pull request is created by CP6.
+- Membership is accepted and the official project page reports **All good**.
+- The v0.1.0 package is published as `qseqsim` without changing the public
+  project name, homepage, or repository ownership.
+- Qiskit 2.5 compatibility is a separate follow-up tracked in
+  [QISKIT_2_5_COMPATIBILITY_CHECKLIST.md](QISKIT_2_5_COMPATIBILITY_CHECKLIST.md).
+  This update does not widen the Qiskit dependency range or authorize a patch
+  release.

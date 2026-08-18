@@ -1,6 +1,10 @@
 # Veri-Q QSeqSim
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Qiskit Ecosystem](https://qisk.it/e-b7361201)](https://qisk.it/e)
+
+**Veri-Q QSeqSim** is part of the
+[Qiskit Ecosystem](https://qiskit.github.io/ecosystem/p/b7361201/).
 
 **QSeqSim** provides structure-aware symbolic simulation of dynamic and
 sequential Qiskit circuits using binary decision diagrams (BDDs) and weighted
@@ -14,9 +18,10 @@ QSeqSim targets symbolic sharing in structured dynamic and sequential circuits.
 It is not presented as a general Aer replacement or as universally faster.
 
 QSeqSim is developed as part of the [**Veri-Q** toolkit](https://www.veri-q.com/).
-The Python distribution and import namespace remain `qseqsim`; the public API,
-including `QSeqSimulator`, is unchanged. OpenQASM 3 remains available as a
-secondary interchange and FM-artifact compatibility frontend.
+The Python distribution and import namespace remain
+[`qseqsim`](https://pypi.org/project/qseqsim/); the public API, including
+`QSeqSimulator`, is unchanged. OpenQASM 3 remains available as a secondary
+interchange and FM-artifact compatibility frontend.
 
 ## Three API layers
 

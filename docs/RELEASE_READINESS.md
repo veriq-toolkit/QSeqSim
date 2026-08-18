@@ -3,6 +3,10 @@
 This record was prepared on **2026-08-12**. It is a staging document, not a
 claim that a release, tag, or upload exists.
 
+> **Historical note:** v0.1.0 has since been published and Veri-Q QSeqSim has
+> been accepted into the Qiskit Ecosystem. The staging decisions below are kept
+> as a release record rather than as current outstanding work.
+
 ## Distribution and display names
 
 Direct queries to the canonical PyPI JSON endpoints returned HTTP 404 for both
@@ -39,7 +43,7 @@ it does not create a tag or final release.
 The ranges are deliberately not expanded beyond tested compatibility during a
 release gate.
 
-## Pre-release actions requiring explicit authorization
+## Historical pre-release actions requiring explicit authorization
 
 1. Push the CP6 commits to a remote backup branch.
 2. Configure protected GitHub environments and pending PyPI/TestPyPI Trusted
