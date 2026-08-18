@@ -10,7 +10,7 @@ Ecosystem.** The canonical membership page is
 | Official criterion | Status | Evidence / remaining action |
 | --- | --- | --- |
 | Meaningfully builds on, interfaces with, or extends Qiskit | Ready | Direct `QuantumCircuit`/`ControlFlowOp` frontend, `BackendV2`, `Target`, `JobV1`, Qiskit `Result`, and native SamplerV2 types |
-| Compatible with Qiskit SDK 2.0 or newer | Ready | Package range is `qiskit>=2.4,<2.5`; release gate covers Qiskit 2.4.x |
+| Compatible with Qiskit SDK 2.0 or newer | Ready | Package range is `qiskit>=2.4,<3`; CI pins the 2.4.2 lower bound and tracks the latest supported 2.x release |
 | OSI-approved license | Ready | Apache-2.0 `LICENSE` and package metadata |
 | Adheres to Qiskit Code of Conduct | Ready | Repository `CODE_OF_CONDUCT.md` adopts and links the Qiskit Code of Conduct |
 | Maintainer activity within the last six months | Accepted | The public repository and v0.1.0 release show current maintainer activity |
@@ -78,7 +78,6 @@ for symbolic parameter algebra, broad gate coverage, or all circuit workloads.
 - Membership is accepted and the official project page reports **All good**.
 - The v0.1.0 package is published as `qseqsim` without changing the public
   project name, homepage, or repository ownership.
-- Qiskit 2.5 compatibility is a separate follow-up tracked in
+- Qiskit 2.5.1 compatibility has been validated and is recorded in
   [QISKIT_2_5_COMPATIBILITY_CHECKLIST.md](QISKIT_2_5_COMPATIBILITY_CHECKLIST.md).
-  This update does not widen the Qiskit dependency range or authorize a patch
-  release.
+  The source dependency range is `qiskit>=2.4,<3`; Qiskit 3 is not included.

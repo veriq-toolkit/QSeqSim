@@ -44,7 +44,8 @@ Supported platforms:
 
 The package metadata deliberately excludes Python 3.14. Python 3.13.9 was used
 for the CP1 correctness audit, while Python 3.12 remains the Docker and FM/AE
-baseline. No broader version claim is made until CI validates it.
+baseline. Supported Qiskit versions are `>=2.4,<3`; CI checks Qiskit 2.4.2 as
+the fixed lower bound and resolves the latest available 2.x release separately.
 
 ## 3. What exactly needs to work (core requirement)
 QSeqSim imports CUDD-backed BDDs via:

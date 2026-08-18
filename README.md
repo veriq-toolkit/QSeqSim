@@ -86,6 +86,7 @@ interpretation](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ECOSYSTE
 QSeqSim requires the compiled `dd.cudd` backend and deliberately does not fall
 back to `dd.autoref`. The correct installation path therefore depends on
 whether PyPI provides a CUDD-enabled `dd` wheel for the platform.
+QSeqSim supports Qiskit `>=2.4,<3`; this range does not include Qiskit 3.
 
 ### Linux x86_64 with CPython 3.12 or 3.13
 

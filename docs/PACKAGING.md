@@ -54,7 +54,7 @@ authoritative original artifact.
 
 - Python: `>=3.12,<3.14` (3.12 and 3.13 only)
 - `dd`: `>=0.6,<0.7`
-- Qiskit: `>=2.4,<2.5`
+- Qiskit: `>=2.4,<3` (Qiskit 2.x from 2.4 onward; Qiskit 3 is not supported)
 - OpenQASM 3 parser: `>=1.0,<1.1`
 
 The `dd` version constraint alone cannot guarantee that its native CUDD
