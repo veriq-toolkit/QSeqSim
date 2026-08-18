@@ -3,6 +3,13 @@
 All notable user-facing changes will be recorded here. The project follows
 semantic versioning after its first public release.
 
+## [0.1.1] - 2026-08-18
+
+- Validate compatibility with Qiskit 2.5 and relax the supported dependency
+  range to `qiskit>=2.4,<3` without adding Qiskit 3 support.
+- Add CI coverage for the fixed Qiskit 2.4.2 lower bound and the latest
+  supported Qiskit 2.x release.
+
 ## [0.1.0] - 2026-08-13
 
 - Installable `qseqsim` package for Python 3.12 and 3.13.
@@ -25,4 +32,5 @@ semantic versioning after its first public release.
   arm64, and make repository links in the package description absolute.
 - Update public project URLs to the current `veriq-toolkit/QSeqSim` owner.
 
+[0.1.1]: https://github.com/veriq-toolkit/QSeqSim/releases/tag/v0.1.1
 [0.1.0]: https://github.com/veriq-toolkit/QSeqSim/releases/tag/v0.1.0

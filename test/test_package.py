@@ -22,7 +22,7 @@ from qseqsim._backend import cudd
 def test_public_api_and_canonical_backend():
     assert issubclass(QSeqSimulator, BDDSimulator)
     assert cudd.__name__ == "dd.cudd"
-    assert qseqsim.__version__ == "0.1.0"
+    assert qseqsim.__version__ == "0.1.1"
     assert issubclass(SymbolicEvaluationError, RuntimeError)
     assert issubclass(UnsupportedQiskitFeatureError, ValueError)
     assert OpenQASM3Parser is QiskitParser
@@ -48,7 +48,7 @@ def test_published_metadata_and_readme_install_contract():
     citation = (root / "CITATION.cff").read_text()
     urls = project["project"]["urls"]
 
-    assert project["project"]["version"] == "0.1.0"
+    assert project["project"]["version"] == "0.1.1"
     assert urls["Homepage"] == "https://www.veri-q.com/"
     assert urls["Repository"].startswith(
         "https://github.com/veriq-toolkit/QSeqSim"
