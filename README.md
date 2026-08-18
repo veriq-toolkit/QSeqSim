@@ -1,7 +1,14 @@
 # Veri-Q QSeqSim
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Qiskit Ecosystem](https://qisk.it/e-b7361201)](https://qisk.it/e)
+[![GitHub Release](https://img.shields.io/github/v/release/veriq-toolkit/QSeqSim?display_name=tag)](https://github.com/veriq-toolkit/QSeqSim/releases/latest)
+[![PyPI](https://img.shields.io/pypi/v/qseqsim)](https://pypi.org/project/qseqsim/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/veriq-toolkit/QSeqSim/blob/main/LICENSE)
+[![Qiskit Ecosystem](https://qisk.it/e-b7361201)](https://qiskit.github.io/ecosystem/p/b7361201/)
+<br>
+[![Qiskit](https://img.shields.io/badge/Qiskit-%3E%3D2.4%2C%3C3-6929c4)](https://github.com/Qiskit/qiskit)
+[![Python](https://img.shields.io/badge/Python-3.12%20%7C%203.13-3776ab)](https://www.python.org/)
+[![CI](https://github.com/veriq-toolkit/QSeqSim/actions/workflows/ci.yml/badge.svg)](https://github.com/veriq-toolkit/QSeqSim/actions/workflows/ci.yml)
+[![Platform](https://img.shields.io/badge/platform-Linux%20x86__64%20%7C%20macOS%20arm64-lightgrey)](#installation)
 
 **Veri-Q QSeqSim** is part of the
 [Qiskit Ecosystem](https://qiskit.github.io/ecosystem/p/b7361201/).
@@ -247,7 +254,7 @@ print(result.get_counts())
 print(result.get_memory()[:5])
 ```
 
-The backend directly uses the CP3 `QuantumCircuit` frontend. For each circuit
+The backend directly uses the `QuantumCircuit` frontend. For each circuit
 it performs one symbolic distribution execution, branching and aggregating all
 classical outcomes while preserving measurement correlations. The compatibility
 layer then samples `shots` from that distribution; it never reruns the symbolic
@@ -368,12 +375,16 @@ python exp/simulation/exp_engine.py qiskit_grover
 ## Documentation (User / Reuse / AE)
 
 - **User guide (library API, semantics, troubleshooting):** [docs/USER_GUIDE.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/USER_GUIDE.md)
+- **Qiskit integration (direct frontend, BackendV2, SamplerV2):** [docs/QISKIT_INTEGRATION.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/QISKIT_INTEGRATION.md)
+- **Qiskit compatibility policy and tested environments:** [docs/QISKIT_COMPATIBILITY.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/QISKIT_COMPATIBILITY.md)
+- **Correctness and soundness notes:** [docs/CORRECTNESS_NOTES.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/CORRECTNESS_NOTES.md)
 - **Public numerical contract:** [docs/NUMERICAL_CONTRACT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/NUMERICAL_CONTRACT.md)
 - **Ecosystem benchmark:** [docs/ECOSYSTEM_BENCHMARK.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ECOSYSTEM_BENCHMARK.md)
 - **Reuse & extension guide (add benchmarks / add gates / testing):** [docs/REUSE.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/REUSE.md)
 - **Environment & installation notes (Docker/native, CUDD + dd):** [docs/ENVIRONMENT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/ENVIRONMENT.md)
 - **Package API and FM import migration:** [docs/PACKAGING.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/PACKAGING.md)
 - **Results format (CSV schemas):** [docs/RESULTS_FORMAT.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/RESULTS_FORMAT.md)
+- **Maintainer release process:** [docs/RELEASING.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/docs/RELEASING.md)
 - **Runnable toy examples:** [examples/](https://github.com/veriq-toolkit/QSeqSim/tree/main/examples)
 - **Regression / toy tests:** [test/](https://github.com/veriq-toolkit/QSeqSim/tree/main/test)
 - **Artifact Evaluation (FM 2026):** [ae/README.md](https://github.com/veriq-toolkit/QSeqSim/blob/main/ae/README.md)
@@ -399,6 +410,17 @@ This runs small subsets of Tables 1–5 and writes CSV results under `ae/results
 docker build -t qseqsim-ae .
 docker run --rm -it qseqsim-ae:latest bash
 ```
+
+## Publication
+
+Zihao Li, Ji Guan, and Mingsheng Ying. “QSeqSim: A Symbolic Simulator for
+Qiskit While Loops Using Sequential Quantum Circuits.” In *Formal Methods
+(FM 2026)*, Lecture Notes in Computer Science 16556, Springer, 2026,
+pp. 578–598.
+
+- [Springer / DOI](https://doi.org/10.1007/978-3-032-26204-2_30)
+- [arXiv preprint](https://arxiv.org/abs/2605.14881)
+- [Cite this repository](CITATION.cff)
 
 ## License
 

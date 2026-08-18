@@ -1,7 +1,7 @@
 # Packaging and migration
 
-CP2 changes the installable library layout without changing the FM simulation
-semantics.
+The installable library layout preserves the FM simulation semantics while
+providing a stable package API.
 
 ## Supported package imports
 
@@ -20,16 +20,16 @@ the preferred compatibility surface.
 use `QuantumCircuitParser` and never call `qiskit.qasm3.dumps`.
 
 `OpenQASM3Parser` is the secondary interchange frontend. `QiskitParser` remains
-an alias for that existing implementation so CP2 callers keep identical input
+an alias for that existing implementation so existing callers keep identical input
 semantics. It has not been silently repurposed as the direct parser.
 
 Migration examples:
 
 ```python
-# Recommended CP3 path
+# Recommended direct path
 result = QSeqSimulator(qc).run()
 
-# CP2-compatible path (still OpenQASM-mediated)
+# Compatibility path (still OpenQASM-mediated)
 result = QSeqSimulator(QiskitParser(qc).parse()).run()
 
 # Raw OpenQASM 3 interchange

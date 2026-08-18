@@ -221,6 +221,6 @@ is disabled unless `--enable-macos-shot-branching` requests a non-formal probe.
 A Q4 method stops after its first timeout/error; later widths remain recorded
 as `not_run_after_boundary` rather than being mislabeled unsupported.
 
-Machine-readable results are in `benchmarks/results/`: the original CP6 result,
+Machine-readable results are in `benchmarks/results/`: the original result,
 the extended macOS Q1–Q3 run, the non-formal macOS shot-branching probe, and the
 macOS Q4-A/Q4-B run. No statevectors, CUDD dumps, or large logs are retained.

@@ -214,7 +214,7 @@ QSeqSimulator(program: QuantumCircuit | list | None = None, precision: int = 32)
 ```
 
 * A `QuantumCircuit` is parsed through `QuantumCircuitParser` without OpenQASM.
-* A list preserves the CP2 parsed-IR contract.
+* A list preserves the parsed-IR compatibility contract.
 * `None` permits later use of `run(qc)` or `run(circuit=qc, ...)`.
 
 #### Execute
@@ -361,8 +361,8 @@ The three public execution layers are therefore:
 
 The sampler is native: it is not `BackendSamplerV2(QSeqSimBackend())`, and it
 never reruns the simulator once per shot. See
-[the CP5 gate](CP5_SAMPLERV2.md) for detailed binding, RNG, ordering, and
-failure semantics.
+[Qiskit integration](QISKIT_INTEGRATION.md) for detailed binding, RNG,
+ordering, and failure semantics.
 
 ---
 

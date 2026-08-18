@@ -185,8 +185,8 @@ class QSeqSimBackend(BackendV2):
     def _run_circuit(
         self, circuit: QuantumCircuit, *, shots: int, memory: bool, rng: random.Random
     ) -> dict:
-        # Constructing directly from the CP3 parser is deliberate: there is no
-        # OpenQASM serialization or reparsing in the BackendV2 path.
+        # Constructing directly from the QuantumCircuit parser is deliberate:
+        # there is no OpenQASM serialization or reparsing in the BackendV2 path.
         distribution = run_symbolic_distribution(circuit, precision=self._precision)
         sampled = sample_distribution(distribution, shots=int(shots), rng=rng)
         counts = {hex(outcome): count for outcome, count in Counter(sampled).items()}

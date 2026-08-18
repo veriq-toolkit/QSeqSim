@@ -42,9 +42,9 @@ Supported platforms:
 - OS: Linux or macOS recommended
 - Windows: no native support claim; consider a Linux environment such as WSL2
 
-The package metadata deliberately excludes Python 3.14. Python 3.13.9 was used
-for the CP1 correctness audit, while Python 3.12 remains the Docker and FM/AE
-baseline. Supported Qiskit versions are `>=2.4,<3`; CI checks Qiskit 2.4.2 as
+The package metadata deliberately excludes Python 3.14. Python 3.12 remains
+the Docker and FM/AE baseline, and both Python 3.12 and 3.13 are covered by
+tests. Supported Qiskit versions are `>=2.4,<3`; CI checks Qiskit 2.4.2 as
 the fixed lower bound and resolves the latest available 2.x release separately.
 
 ## 3. What exactly needs to work (core requirement)
