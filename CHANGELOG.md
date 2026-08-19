@@ -3,6 +3,12 @@
 All notable user-facing changes will be recorded here. The project follows
 semantic versioning after its first public release.
 
+## [0.1.2] - 2026-08-19
+
+- Normalize the current software branding to `VeriQ` and `VeriQ QSeqSim`
+  across the README and citation metadata. This release contains no functional
+  or dependency changes.
+
 ## [0.1.1] - 2026-08-18
 
 - Validate compatibility with Qiskit 2.5 and relax the supported dependency
@@ -32,5 +38,6 @@ semantic versioning after its first public release.
   arm64, and make repository links in the package description absolute.
 - Update public project URLs to the current `veriq-toolkit/QSeqSim` owner.
 
+[0.1.2]: https://github.com/veriq-toolkit/QSeqSim/releases/tag/v0.1.2
 [0.1.1]: https://github.com/veriq-toolkit/QSeqSim/releases/tag/v0.1.1
 [0.1.0]: https://github.com/veriq-toolkit/QSeqSim/releases/tag/v0.1.0

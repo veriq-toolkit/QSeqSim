@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use QSeqSim, cite the software and the FM 2026 paper."
-title: "Veri-Q QSeqSim"
+title: "VeriQ QSeqSim"
 type: software
-version: 0.1.1
-date-released: 2026-08-18
+version: 0.1.2
+date-released: 2026-08-19
 license: Apache-2.0
 repository-code: "https://github.com/veriq-toolkit/QSeqSim"
 url: "https://www.veri-q.com/"

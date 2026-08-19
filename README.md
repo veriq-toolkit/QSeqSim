@@ -1,4 +1,4 @@
-# Veri-Q QSeqSim
+# VeriQ QSeqSim
 
 [![GitHub Release](https://img.shields.io/github/v/release/veriq-toolkit/QSeqSim?display_name=tag)](https://github.com/veriq-toolkit/QSeqSim/releases/latest)
 [![PyPI](https://img.shields.io/pypi/v/qseqsim)](https://pypi.org/project/qseqsim/)
@@ -10,7 +10,7 @@
 [![CI](https://github.com/veriq-toolkit/QSeqSim/actions/workflows/ci.yml/badge.svg)](https://github.com/veriq-toolkit/QSeqSim/actions/workflows/ci.yml)
 [![Platform](https://img.shields.io/badge/platform-Linux%20x86__64%20%7C%20macOS%20arm64-lightgrey)](#installation)
 
-**Veri-Q QSeqSim** is part of the
+**VeriQ QSeqSim** is part of the
 [Qiskit Ecosystem](https://qiskit.github.io/ecosystem/p/b7361201/).
 
 **QSeqSim** provides structure-aware symbolic simulation of dynamic and
@@ -24,7 +24,7 @@ high-performance numerical simulator with broad methods and noise support;
 QSeqSim targets symbolic sharing in structured dynamic and sequential circuits.
 It is not presented as a general Aer replacement or as universally faster.
 
-QSeqSim is developed as part of the [**Veri-Q** toolkit](https://www.veri-q.com/).
+QSeqSim is developed as part of the [**VeriQ** toolkit](https://www.veri-q.com/).
 The Python distribution and import namespace remain
 [`qseqsim`](https://pypi.org/project/qseqsim/); the public API, including
 `QSeqSimulator`, is unchanged. OpenQASM 3 remains available as a secondary
